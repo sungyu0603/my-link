@@ -13,6 +13,7 @@ import {
   ExternalLink,
   Sparkles,
   GraduationCap,
+  Code2,
 } from 'lucide-react';
 
 interface LinkItem {
@@ -40,8 +41,8 @@ export default function ProfilePage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: '김선규 프로필',
-          text: '안녕하세요! 바이브 코딩을 배우고 있는 한양대생 김선규입니다.',
+          title: '김선규 | 소프트웨어 개발자 프로필',
+          text: '사용자 경험과 견고한 코드를 지향하는 소프트웨어 개발자 김선규입니다.',
           url: currentUrl,
         });
         return;
@@ -67,7 +68,7 @@ export default function ProfilePage() {
     {
       id: 'blog',
       title: '기술 블로그',
-      subtitle: '배운 내용과 바이브 코딩 개발 일지',
+      subtitle: '기술적인 고민과 개발 회고를 기록하는 공간',
       url: 'https://velog.io',
       icon: 'blog',
       badge: 'Blog',
@@ -168,18 +169,18 @@ export default function ProfilePage() {
         {/* Tag Badges */}
         <div className="flex flex-wrap items-center justify-center gap-2 mb-3.5">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-950/80 text-indigo-300 border border-indigo-800/40">
-            <GraduationCap className="w-3.5 h-3.5 text-indigo-400" />
-            한양대학교
+            <Code2 className="w-3.5 h-3.5 text-indigo-400" />
+            소프트웨어 엔지니어
           </span>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-sky-950/70 text-sky-300 border border-sky-800/40">
             <Sparkles className="w-3 h-3 text-sky-400" />
-            바이브 코딩
+            웹 & 프로덕트 개발
           </span>
         </div>
 
-        {/* Bio (Exact user request) */}
+        {/* Bio */}
         <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-sm mb-6 font-normal">
-          안녕하세요! 바이브 코딩을 배우고 있는 한양대생입니다.
+          복잡한 문제를 단순하고 우아한 코드로 해결하는 개발자입니다. 사용자 중심의 가치와 매끄러운 웹 경험을 만드는 것에 깊은 열정을 쏟고 있습니다.
         </p>
 
         {/* Quick Share Button */}
