@@ -17,7 +17,11 @@ export const metadata: Metadata = {
   description: "안녕하세요! 바이브 코딩을 배우고 있는 한양대생 김선규입니다.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"

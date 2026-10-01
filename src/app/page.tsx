@@ -24,40 +24,41 @@ import {
   CalendarDays,
   Trophy,
   Layers,
+  ArrowUpRight,
+  Flame,
+  Terminal,
 } from 'lucide-react';
 
 // ─────────────────────────────────────────────
-// Social SVG Icons (not in this lucide version)
+// Social SVG Icons (Neobrutalism custom vector)
 // ─────────────────────────────────────────────
 function GithubIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-      <path d="M9 18c-4.51 2-5-2-7-2" />
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
     </svg>
   );
 }
+
 function LinkedinIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-      <rect width="4" height="12" x="2" y="9" />
-      <circle cx="4" cy="4" r="2" />
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v7.6h2.79v-7.6H6.46M7.86 6.81a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/>
     </svg>
   );
 }
+
 function TwitterIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4l16 16M4 20L20 4" />
-      <path d="M4 4h6l10 16h-6z" fill="currentColor" stroke="none" opacity="0.15"/>
-      <path d="M4 4h6l10 16h-6L4 4z" />
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
     </svg>
   );
 }
+
 function InstagramIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
       <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
@@ -75,6 +76,7 @@ interface LinkItem {
   url: string;
   icon: 'github' | 'blog' | 'email' | 'portfolio' | 'instagram' | 'coffee' | 'linkedin' | 'calendar' | 'newsletter';
   badge?: string;
+  bgColor: string;
   featured?: boolean;
 }
 
@@ -87,6 +89,7 @@ interface ProjectItem {
   status: 'active' | 'completed';
   period: string;
   url: string;
+  color: string;
 }
 
 interface SkillItem {
@@ -101,165 +104,169 @@ interface SkillItem {
 const profile = {
   name: '김선규',
   handle: '@seongyu_kim',
-  title: '풀스택 소프트웨어 엔지니어 & 크리에이터',
-  bio: '사용자 친화적이고 견고한 웹 프로덕트를 만드는 것을 즐깁니다. 최신 프론트엔드 생태계와 클라우드 아키텍처에 깊은 관심이 있습니다.',
-  bioEn: 'Building user-friendly and robust web products. Passionate about modern frontend ecosystems and cloud architecture.',
+  role: 'FULLSTACK DEV',
+  title: '풀스택 소프트웨어 엔지니어 & 프로덕트 빌더 🚀',
+  bio: '복잡한 문제를 단순하고 직관적인 코드로 풀어냅니다. 현대적인 웹 기술 스택(Next.js, TypeScript)과 실용적인 사용자 경험을 집요하게 연구합니다.',
   location: '서울, 대한민국',
-  university: '한양대학교',
+  university: '한양대학교 컴퓨터소프트웨어학부',
   email: 'sunkyu@hanyang.ac.kr',
-  avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-  bannerUrl: 'https://images.unsplash.com/photo-1517134191118-9d595e4c8c2b?w=1200&auto=format&fit=crop&q=80',
+  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
   isAvailableForHire: true,
-  statusMessage: '✨ 새로운 아이디어 빌딩 중 & 커피챗 환영!',
-  likes: 128,
+  likes: 142,
 };
 
 const skills: SkillItem[] = [
-  { name: 'React / Next.js', level: 95, color: 'from-cyan-400 to-blue-500' },
-  { name: 'TypeScript', level: 92, color: 'from-blue-400 to-indigo-500' },
-  { name: 'Tailwind CSS', level: 90, color: 'from-teal-400 to-cyan-500' },
-  { name: 'Node.js', level: 82, color: 'from-green-400 to-emerald-500' },
-  { name: 'PostgreSQL', level: 80, color: 'from-indigo-400 to-purple-500' },
-  { name: 'Docker / CI/CD', level: 75, color: 'from-orange-400 to-rose-500' },
+  { name: 'React / Next.js', level: 95, color: 'bg-[#FFE600]' },
+  { name: 'TypeScript', level: 92, color: 'bg-[#38BDF8]' },
+  { name: 'Tailwind CSS', level: 90, color: 'bg-[#00F59B]' },
+  { name: 'Node.js / Express', level: 82, color: 'bg-[#A78BFA]' },
+  { name: 'PostgreSQL / Prisma', level: 80, color: 'bg-[#FF6B81]' },
+  { name: 'Docker / CI/CD', level: 75, color: 'bg-[#FB923C]' },
 ];
 
 const techBadges = [
-  'Next.js', 'TypeScript', 'React', 'Tailwind', 'Node.js',
-  'PostgreSQL', 'Docker', 'Figma', 'Git', 'GraphQL',
+  { name: 'Next.js 16', bg: 'bg-[#FFE600]' },
+  { name: 'TypeScript', bg: 'bg-[#38BDF8]' },
+  { name: 'React 19', bg: 'bg-[#00F59B]' },
+  { name: 'Tailwind', bg: 'bg-[#A78BFA]' },
+  { name: 'Node.js', bg: 'bg-[#FF6B81]' },
+  { name: 'PostgreSQL', bg: 'bg-[#FBBF24]' },
+  { name: 'Figma', bg: 'bg-[#F472B6]' },
+  { name: 'Docker', bg: 'bg-[#67E8F9]' },
 ];
 
 const links: LinkItem[] = [
   {
     id: 'portfolio',
-    title: '개인 포트폴리오 웹사이트',
-    subtitle: '주요 프로젝트와 작업물 모음',
+    title: '개인 포트폴리오 웹사이트 🌐',
+    subtitle: '주요 프로젝트와 최신 작업물을 한눈에 둘러보세요',
     url: 'https://sunkyu.dev',
     icon: 'portfolio',
-    badge: '대표 링크',
+    badge: 'MUST VISIT',
+    bgColor: 'bg-[#FFE600]',
     featured: true,
   },
   {
     id: 'blog',
-    title: '기술 블로그 · Tech Insights',
-    subtitle: '웹 최적화, Next.js 아키텍처, 개발 회고록',
+    title: '기술 블로그 · Tech Insights ✍️',
+    subtitle: '웹 성능 최적화, 프론트엔드 아키텍처 및 개발 회고록',
     url: 'https://velog.io/@sunkyu',
     icon: 'blog',
-    badge: '최신 글 5편',
+    badge: 'NEW POST',
+    bgColor: 'bg-[#E0E7FF]',
     featured: true,
   },
   {
     id: 'github',
-    title: 'GitHub 오픈소스 레포',
-    subtitle: '웹 컴포넌트 라이브러리 및 유틸리티 툴킷',
+    title: 'GitHub 오픈소스 레포지토리 ⭐',
+    subtitle: '유용한 오픈소스 컴포넌트 라이브러리와 유틸리티',
     url: 'https://github.com',
     icon: 'github',
-    badge: '1.2k ⭐',
+    badge: '1.2k STARS',
+    bgColor: 'bg-[#A7F3D0]',
   },
   {
     id: 'newsletter',
-    title: '개발자 뉴스레터 구독',
-    subtitle: '매주 실무 팁과 프론트엔드 트렌드 소식',
+    title: '개발자 뉴스레터 구독 📮',
+    subtitle: '매주 실무 팁과 글로벌 웹 개발 트렌드를 보내드립니다',
     url: 'https://newsletter.example.com',
     icon: 'newsletter',
-    badge: '무료',
+    badge: 'FREE',
+    bgColor: 'bg-[#FECDD3]',
   },
   {
     id: 'calendar',
-    title: '1:1 커피챗 & 멘토링 신청',
-    subtitle: '커리어 고민, 코드 리뷰, 협업 문의',
+    title: '1:1 커피챗 & 멘토링 신청 💬',
+    subtitle: '코드 리뷰, 커리어 고민, 협업 아이디어 언제든 환영합니다',
     url: 'https://calendly.com',
     icon: 'calendar',
-    badge: '예약 가능',
+    badge: 'AVAILABLE',
+    bgColor: 'bg-[#BAE6FD]',
   },
   {
     id: 'email',
-    title: '이메일 보내기',
-    subtitle: '프로젝트 협업 & 커피챗 언제든 환영',
+    title: '이메일 직접 보내기 ✉️',
+    subtitle: 'sunkyu@hanyang.ac.kr (프로젝트 및 채용 제안)',
     url: 'mailto:sunkyu@hanyang.ac.kr',
     icon: 'email',
+    bgColor: 'bg-[#FED7AA]',
   },
   {
     id: 'coffee',
-    title: '커피 한 잔 후원하기 ☕',
-    subtitle: '오픈소스 활동과 아티클 제작에 큰 힘이 됩니다',
+    title: '커피 한 잔 서포트하기 ☕',
+    subtitle: '오픈소스 활동과 양질의 아티클 제작에 큰 힘이 됩니다!',
     url: 'https://buymeacoffee.com',
     icon: 'coffee',
+    badge: 'BUY COFFEE',
+    bgColor: 'bg-[#FDE047]',
   },
 ];
 
 const projects: ProjectItem[] = [
   {
     id: 'p1',
-    title: 'HyperLink · 링크인바이오 플랫폼',
-    description: '크리에이터와 개발자를 위한 초경량, 커스터마이징 가능한 링크 관리 및 방문자 통계 분석 플랫폼.',
-    tags: ['Next.js', 'TypeScript', 'Tailwind', 'PostgreSQL'],
+    title: '⚡ HyperLink - 링크인바이오 플랫폼',
+    description: '크리에이터와 개발자를 위한 초경량 고성능 링크 관리 및 방문자 통계 분석 플랫폼.',
+    tags: ['Next.js 16', 'TypeScript', 'Tailwind', 'PostgreSQL'],
     stars: 480,
     status: 'active',
     period: '2025.10 – 진행 중',
     url: 'https://github.com',
+    color: 'bg-[#FFE600]',
   },
   {
     id: 'p2',
-    title: 'AI Code Reviewer Bot',
+    title: '🤖 AI Code Reviewer Bot',
     description: 'GitHub PR 생성 시 코드 품질, 보안 취약점, 성능 개선점을 분석해주는 LLM 기반 자동 리뷰 봇.',
     tags: ['Node.js', 'OpenAI API', 'GitHub Actions', 'Docker'],
     stars: 820,
     status: 'completed',
     period: '2025.04 – 2025.08',
     url: 'https://github.com',
+    color: 'bg-[#BAE6FD]',
   },
   {
     id: 'p3',
-    title: 'DevSpace · 개발자 생산성 대시보드',
-    description: 'GitHub 알림, 기술 피드, 투두 리스트를 한곳에서 관리하는 브라우저 New Tab 확장 프로그램.',
-    tags: ['React', 'Zustand', 'Chrome Extension', 'Tailwind'],
+    title: '💻 DevSpace - 개발자 생산성 대시보드',
+    description: 'GitHub 알림, 테크 피드, 투두 리스트를 한 화면에서 다루는 모던 New Tab 확장 프로그램.',
+    tags: ['React 19', 'Zustand', 'Chrome Extension', 'Tailwind'],
     stars: 310,
     status: 'completed',
     period: '2025.01 – 2025.03',
     url: 'https://github.com',
+    color: 'bg-[#A7F3D0]',
   },
 ];
 
 // ─────────────────────────────────────────────
-// Icon renderer
+// Link Icon Selector
 // ─────────────────────────────────────────────
 function LinkIcon({ type }: { type: LinkItem['icon'] }) {
-  const cls = 'w-5 h-5';
+  const cls = 'w-5 h-5 text-black';
   switch (type) {
-    case 'github': return (
-      <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-        <path d="M9 18c-4.51 2-5-2-7-2" />
-      </svg>
-    );
-    case 'instagram': return (
-      <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-      </svg>
-    );
+    case 'github': return <GithubIcon className={cls} />;
+    case 'instagram': return <InstagramIcon className={cls} />;
     case 'linkedin': return <LinkedinIcon className={cls} />;
-    case 'blog': return <BookOpen className={cls} />;
-    case 'portfolio': return <Globe className={cls} />;
-    case 'email': return <Mail className={cls} />;
-    case 'coffee': return <Coffee className={cls} />;
-    case 'calendar': return <CalendarDays className={cls} />;
-    case 'newsletter': return <MessageSquare className={cls} />;
-    default: return <ExternalLink className={cls} />;
+    case 'blog': return <BookOpen className={cls} strokeWidth={2.5} />;
+    case 'portfolio': return <Globe className={cls} strokeWidth={2.5} />;
+    case 'email': return <Mail className={cls} strokeWidth={2.5} />;
+    case 'coffee': return <Coffee className={cls} strokeWidth={2.5} />;
+    case 'calendar': return <CalendarDays className={cls} strokeWidth={2.5} />;
+    case 'newsletter': return <MessageSquare className={cls} strokeWidth={2.5} />;
+    default: return <ExternalLink className={cls} strokeWidth={2.5} />;
   }
 }
 
 // ─────────────────────────────────────────────
-// Main Component
+// Main Neobrutalism Profile Page
 // ─────────────────────────────────────────────
 export default function ProfilePage() {
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [likes, setLikes] = useState(profile.likes);
   const [isLiked, setIsLiked] = useState(false);
-  const [showProjects, setShowProjects] = useState(false);
-  const [showSkills, setShowSkills] = useState(false);
+  const [showProjects, setShowProjects] = useState(true);
+  const [showSkills, setShowSkills] = useState(true);
   const [animatedLevels, setAnimatedLevels] = useState<number[]>(skills.map(() => 0));
 
   useEffect(() => {
@@ -282,13 +289,15 @@ export default function ProfilePage() {
     const url = typeof window !== 'undefined' ? window.location.href : 'https://sunkyu.dev';
     if (navigator.share) {
       try {
-        await navigator.share({ title: '김선규 | 프로필', url });
+        await navigator.share({ title: '김선규 | 소프트웨어 개발자 프로필', url });
         return;
-      } catch { /* fallback */ }
+      } catch {
+        /* fallback to copy */
+      }
     }
     navigator.clipboard.writeText(url);
     setCopied(true);
-    showToast('프로필 주소가 복사되었습니다! 📋');
+    showToast('✨ 프로필 링크가 복사되었습니다!');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -296,7 +305,7 @@ export default function ProfilePage() {
     if (!isLiked) {
       setLikes((p) => p + 1);
       setIsLiked(true);
-      showToast('응원해주셔서 감사합니다 💖');
+      showToast('💖 응원해주셔서 정말 감사합니다!');
     } else {
       setLikes((p) => p - 1);
       setIsLiked(false);
@@ -304,279 +313,282 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080c14] text-slate-100 selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
-      {/* ── Ambient Background Glow ── */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-600/10 rounded-full blur-[140px]" />
-        <div className="absolute top-1/3 -left-40 w-[400px] h-[400px] bg-violet-600/8 rounded-full blur-[120px]" />
-        <div className="absolute top-1/3 -right-40 w-[400px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-indigo-500/6 rounded-full blur-[120px]" />
-      </div>
+    <div className="min-h-screen py-8 sm:py-14 px-4 font-sans text-black selection:bg-[#FFE600] selection:text-black">
+      
+      {/* ── Top Floating Action Bar ── */}
+      <header className="max-w-2xl mx-auto mb-6 flex items-center justify-between">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-black text-[#FFE600] font-black text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000] rotate-[-1deg]">
+          <Terminal className="w-3.5 h-3.5" />
+          <span>PORTFOLIO_V2.0</span>
+        </div>
 
-      <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12">
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-2 px-4 py-2 bg-white text-black font-extrabold text-xs uppercase border-2 border-black shadow-[3px_3px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all cursor-pointer"
+        >
+          {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
+          <span>{copied ? 'COPIED!' : 'SHARE'}</span>
+        </button>
+      </header>
 
-        {/* ══════════════════════════════════
-            BANNER + AVATAR CARD
-        ══════════════════════════════════ */}
-        <div className="relative rounded-3xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/50 mb-6">
+      {/* ── Main Container ── */}
+      <main className="max-w-2xl mx-auto space-y-6">
 
-          {/* Banner */}
-          <div className="relative h-40 sm:h-52 w-full overflow-hidden">
-            <Image
-              src={profile.bannerUrl}
-              alt="배너 이미지"
-              fill
-              className="object-cover"
-              priority
-              sizes="(max-width: 672px) 100vw, 672px"
+        {/* ════════════════════════════════════════
+            1. HERO PROFILE CARD (NEOBRUTALISM)
+        ════════════════════════════════════════ */}
+        <section className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] rounded-3xl overflow-hidden relative">
+
+          {/* Decorative Checkerboard / Graphic Banner */}
+          <div className="h-36 sm:h-44 bg-[#FFE600] border-b-4 border-black relative overflow-hidden flex items-center justify-between px-6">
+            {/* Background Graphic Lines */}
+            <div
+              className="absolute inset-0 opacity-15 pointer-events-none"
+              style={{
+                backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 15px, transparent 0, transparent 30px)',
+              }}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-[#080c14]" />
-            {/* Top action buttons */}
-            <div className="absolute top-4 right-4 flex gap-2 z-10">
-              <button
-                onClick={handleShare}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/50 backdrop-blur-md text-white/90 hover:bg-black/70 border border-white/15 text-xs font-medium transition-all active:scale-95 shadow-lg"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
-                <span className="hidden sm:inline">{copied ? '복사됨!' : '공유하기'}</span>
-              </button>
+            
+            {/* Quirky Banner Badges */}
+            <div className="relative z-10 hidden sm:flex flex-col gap-1.5">
+              <span className="inline-block px-3 py-1 bg-black text-white font-mono font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_0px_#fff]">
+                ⚡ FULL-STACK ARCHITECT
+              </span>
+              <span className="inline-block px-3 py-1 bg-[#00F59B] text-black font-extrabold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+                🚀 BUILDER & PROBLEM SOLVER
+              </span>
+            </div>
+
+            <div className="relative z-10 ml-auto">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FF6B81] text-white font-black text-xs uppercase border-2 border-black shadow-[3px_3px_0px_0px_#000] rotate-[3deg]">
+                <Flame className="w-4 h-4 fill-white" />
+                OPEN FOR HIRES
+              </span>
             </div>
           </div>
 
-          {/* Profile Info Section */}
-          <div className="bg-[#0d1220]/90 backdrop-blur-xl px-5 sm:px-8 pb-7">
-            {/* Avatar Row */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between -mt-16 sm:-mt-20 gap-4 mb-5">
-
-              {/* Avatar */}
-              <div className="relative group flex-shrink-0">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] bg-gradient-to-tr from-violet-500 via-indigo-500 to-sky-400 shadow-xl shadow-indigo-900/40">
-                  <div className="relative w-full h-full rounded-full overflow-hidden bg-slate-900 border-2 border-[#0d1220]">
-                    <Image
-                      src={profile.avatarUrl}
-                      alt={profile.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 640px) 112px, 128px"
-                      priority
-                    />
-                  </div>
+          {/* Main Info Body */}
+          <div className="px-6 sm:px-8 pb-8 pt-0">
+            {/* Avatar & Floating Actions */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between -mt-16 sm:-mt-20 gap-4 mb-6">
+              
+              {/* Avatar Box */}
+              <div className="relative group">
+                <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-2xl overflow-hidden bg-[#FFE600] border-4 border-black shadow-[6px_6px_0px_0px_#000]">
+                  <Image
+                    src={profile.avatarUrl}
+                    alt={profile.name}
+                    fill
+                    priority
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="144px"
+                  />
                 </div>
-                {/* Availability dot */}
-                {profile.isAvailableForHire && (
-                  <span className="absolute bottom-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 border-2 border-[#0d1220] shadow-md">
-                    <span className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" />
-                  </span>
-                )}
+                {/* Active Indicator Pin */}
+                <div className="absolute -bottom-2 -right-2 px-2.5 py-1 bg-[#00F59B] text-black border-2 border-black font-black text-[11px] shadow-[2px_2px_0px_0px_#000] rotate-[-4deg]">
+                  ONLINE ●
+                </div>
               </div>
 
-              {/* Like + Share */}
-              <div className="flex items-center gap-2 sm:pb-2">
+              {/* Heart Cheer Button */}
+              <div className="flex items-center gap-3">
                 <button
                   onClick={handleLike}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200 active:scale-95 ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-black font-black text-sm uppercase transition-all duration-150 cursor-pointer ${
                     isLiked
-                      ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 shadow-sm shadow-rose-500/20'
-                      : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:text-white'
+                      ? 'bg-[#FF6B81] text-white shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
+                      : 'bg-white text-black shadow-[4px_4px_0px_0px_#000] hover:bg-pink-100 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
                   }`}
                 >
-                  <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-rose-500 text-rose-500 scale-110' : ''}`} />
-                  <span>응원하기 {likes}</span>
+                  <Heart className={`w-4 h-4 ${isLiked ? 'fill-white' : 'fill-none'}`} strokeWidth={3} />
+                  <span>CHEER {likes}</span>
                 </button>
               </div>
             </div>
 
-            {/* Name & Info */}
-            <div className="text-center sm:text-left space-y-3">
-              {/* Name row */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            {/* Profile Meta Details */}
+            <div className="space-y-4 text-center sm:text-left">
+              <div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 justify-center sm:justify-start">
+                  <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-black flex items-center justify-center sm:justify-start gap-2">
                     {profile.name}
+                    <CheckCircle2 className="w-6 h-6 text-black fill-[#00F59B]" strokeWidth={2.5} />
                   </h1>
-                  <CheckCircle2 className="w-5 h-5 text-indigo-400 fill-indigo-400/20 flex-shrink-0" />
-                </div>
-                <span className="text-sm text-slate-400 font-medium">{profile.handle}</span>
-                {profile.isAvailableForHire && (
-                  <span className="inline-flex items-center gap-1 mx-auto sm:mx-0 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 w-fit">
-                    <Briefcase className="w-3 h-3" />
-                    협업 가능
+                  <span className="font-mono font-bold text-sm text-neutral-600 bg-neutral-200 px-2 py-0.5 border border-black rounded inline-block self-center sm:self-auto">
+                    {profile.handle}
                   </span>
-                )}
+                </div>
+
+                <div className="mt-2">
+                  <span className="inline-block px-3 py-1 bg-[#FFE600] border-2 border-black font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] rotate-[-1deg]">
+                    {profile.title}
+                  </span>
+                </div>
               </div>
 
-              {/* Title */}
-              <p className="text-sm sm:text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-sky-400">
-                {profile.title}
-              </p>
-
-              {/* Bio */}
-              <p className="text-sm sm:text-[15px] leading-relaxed text-slate-300 max-w-xl">
+              {/* Bio description */}
+              <p className="text-sm sm:text-base font-semibold leading-relaxed text-neutral-800 bg-[#FAF7EE] p-4 border-2 border-black rounded-xl shadow-[3px_3px_0px_0px_#000]">
                 {profile.bio}
               </p>
-              <p className="text-xs sm:text-sm leading-relaxed text-slate-500 italic max-w-xl">
-                {profile.bioEn}
-              </p>
 
-              {/* Location & Status */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2 pt-1">
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>{profile.location}</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                  <Code2 className="w-3.5 h-3.5" />
-                  <span>{profile.university}</span>
-                </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
-                  <span>{profile.statusMessage}</span>
-                </div>
+              {/* Location & Affiliation Badges */}
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1 font-bold text-xs">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border-2 border-black shadow-[2px_2px_0px_0px_#000] rounded-lg">
+                  <MapPin className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
+                  {profile.location}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#E0E7FF] border-2 border-black shadow-[2px_2px_0px_0px_#000] rounded-lg">
+                  <Code2 className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
+                  {profile.university}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#A7F3D0] border-2 border-black shadow-[2px_2px_0px_0px_#000] rounded-lg">
+                  <Briefcase className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
+                  협업 & 외주 가능
+                </span>
               </div>
 
-              {/* Social Icons */}
-              <div className="flex items-center justify-center sm:justify-start gap-2 pt-3">
+              {/* Social Channels Row */}
+              <div className="pt-3 flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
                 {[
-                  { icon: <GithubIcon className="w-4 h-4" />, href: 'https://github.com', label: 'GitHub' },
-                  { icon: <LinkedinIcon className="w-4 h-4" />, href: 'https://linkedin.com', label: 'LinkedIn' },
-                  { icon: <TwitterIcon className="w-4 h-4" />, href: 'https://twitter.com', label: 'Twitter' },
-                  { icon: <InstagramIcon className="w-4 h-4" />, href: 'https://instagram.com', label: 'Instagram' },
-                  { icon: <Mail className="w-4 h-4" />, href: `mailto:${profile.email}`, label: 'Email' },
-                ].map(({ icon, href, label }) => (
+                  { icon: <GithubIcon className="w-4 h-4" />, href: 'https://github.com', bg: 'bg-[#FFE600]', label: 'GitHub' },
+                  { icon: <LinkedinIcon className="w-4 h-4" />, href: 'https://linkedin.com', bg: 'bg-[#BAE6FD]', label: 'LinkedIn' },
+                  { icon: <TwitterIcon className="w-4 h-4" />, href: 'https://twitter.com', bg: 'bg-[#FECDD3]', label: 'X (Twitter)' },
+                  { icon: <InstagramIcon className="w-4 h-4" />, href: 'https://instagram.com', bg: 'bg-[#A7F3D0]', label: 'Instagram' },
+                  { icon: <Mail className="w-4 h-4" strokeWidth={2.5} />, href: `mailto:${profile.email}`, bg: 'bg-[#FED7AA]', label: 'Email' },
+                ].map((s) => (
                   <a
-                    key={label}
-                    href={href}
+                    key={s.label}
+                    href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={label}
-                    title={label}
-                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white border border-white/5 hover:border-white/20 transition-all duration-200 active:scale-95 hover:scale-105"
+                    title={s.label}
+                    className={`p-2.5 ${s.bg} border-2 border-black shadow-[3px_3px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all rounded-xl cursor-pointer`}
                   >
-                    {icon}
+                    {s.icon}
                   </a>
                 ))}
               </div>
 
-              {/* Stats */}
-              <div className="pt-5 mt-4 border-t border-white/[0.07] grid grid-cols-3 gap-2 text-center">
-                {[
-                  { value: links.length, label: '등록된 링크', icon: <Layers className="w-4 h-4" /> },
-                  { value: projects.length, label: '프로젝트', icon: <Trophy className="w-4 h-4" /> },
-                  { value: '8.5k+', label: '누적 클릭', icon: <Zap className="w-4 h-4" /> },
-                ].map(({ value, label, icon }) => (
-                  <div key={label} className="py-3 px-2 rounded-2xl bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.06] transition-colors">
-                    <div className="flex items-center justify-center gap-1.5 text-indigo-400 mb-1">{icon}</div>
-                    <span className="block text-xl font-bold text-white">{value}</span>
-                    <span className="text-[11px] text-slate-400 font-medium">{label}</span>
-                  </div>
-                ))}
+              {/* Stats Neobrutalism Grid */}
+              <div className="pt-4 grid grid-cols-3 gap-3">
+                <div className="p-3 bg-[#FFE600] border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-xl text-center">
+                  <span className="block text-2xl font-black">{links.length}</span>
+                  <span className="text-[11px] font-black uppercase text-black/70">LINKS</span>
+                </div>
+                <div className="p-3 bg-[#00F59B] border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-xl text-center">
+                  <span className="block text-2xl font-black">{projects.length}</span>
+                  <span className="text-[11px] font-black uppercase text-black/70">PROJECTS</span>
+                </div>
+                <div className="p-3 bg-[#38BDF8] border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-xl text-center">
+                  <span className="block text-2xl font-black">8.5k+</span>
+                  <span className="text-[11px] font-black uppercase text-black/70">VIEWS</span>
+                </div>
               </div>
+
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* ══════════════════════════════════
-            TECH BADGE STRIP
-        ══════════════════════════════════ */}
-        <div className="mb-6 overflow-hidden">
-          <div className="flex flex-wrap gap-2 justify-center">
-            {techBadges.map((tech) => (
-              <span
-                key={tech}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-950/60 text-indigo-300 border border-indigo-800/40 hover:bg-indigo-900/60 hover:border-indigo-600/50 transition-all cursor-default"
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════
-            LINK CARDS
-        ══════════════════════════════════ */}
-        <section className="mb-6 space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 px-1 mb-4">
-            🔗 Links
-          </h2>
-          {links.map((item) => (
-            <a
-              key={item.id}
-              href={item.url}
-              target={item.url.startsWith('mailto') ? '_self' : '_blank'}
-              rel="noopener noreferrer"
-              className={`group relative flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 active:scale-[0.98] ${
-                item.featured
-                  ? 'bg-gradient-to-r from-indigo-950/60 to-slate-900/60 border-indigo-700/40 hover:border-indigo-500/60 hover:shadow-lg hover:shadow-indigo-950/40'
-                  : 'bg-slate-900/50 border-slate-800/60 hover:bg-slate-800/60 hover:border-slate-700/60'
-              }`}
+        {/* ════════════════════════════════════════
+            2. TICKER / BADGE STRIP
+        ════════════════════════════════════════ */}
+        <section className="bg-black text-[#FFE600] py-2.5 px-4 border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-2xl flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-mono font-black text-xs uppercase overflow-hidden">
+          {techBadges.map((badge) => (
+            <span
+              key={badge.name}
+              className={`px-2.5 py-1 ${badge.bg} text-black border-2 border-black shadow-[2px_2px_0px_0px_#000] rounded-lg`}
             >
-              {item.featured && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full bg-gradient-to-b from-indigo-400 to-violet-500" />
-              )}
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all group-hover:scale-105 border ${
-                  item.featured
-                    ? 'bg-indigo-600/20 border-indigo-500/30 text-indigo-400'
-                    : 'bg-white/5 border-white/10 text-slate-400 group-hover:bg-indigo-600/15 group-hover:text-indigo-400'
-                }`}>
-                  <LinkIcon type={item.icon} />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-sm font-semibold transition-colors ${
-                      item.featured ? 'text-indigo-200 group-hover:text-white' : 'text-white/90 group-hover:text-white'
-                    }`}>
-                      {item.title}
-                    </span>
-                    {item.badge && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                        item.featured
-                          ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
-                          : 'bg-white/8 text-slate-300 border-white/15'
-                      }`}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </div>
-                  {item.subtitle && (
-                    <p className="text-xs text-slate-400 truncate mt-0.5">{item.subtitle}</p>
-                  )}
-                </div>
-              </div>
-              <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all flex-shrink-0 ml-2" />
-            </a>
+              #{badge.name}
+            </span>
           ))}
         </section>
 
-        {/* ══════════════════════════════════
-            SKILLS (collapsible)
-        ══════════════════════════════════ */}
-        <section className="mb-6">
+        {/* ════════════════════════════════════════
+            3. LINK CARDS (NEOBRUTALISM CARDS)
+        ════════════════════════════════════════ */}
+        <section className="space-y-3.5">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
+              <span className="px-2 py-0.5 bg-black text-white rounded">EXPLORE</span>
+              <span>CURATED LINKS</span>
+            </h2>
+            <span className="font-mono text-xs font-bold text-neutral-600">({links.length} ITEMS)</span>
+          </div>
+
+          <div className="space-y-3">
+            {links.map((item) => (
+              <a
+                key={item.id}
+                href={item.url}
+                target={item.url.startsWith('mailto') ? '_self' : '_blank'}
+                rel="noopener noreferrer"
+                className={`group relative flex items-center justify-between p-4 sm:p-5 rounded-2xl border-4 border-black shadow-[5px_5px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all cursor-pointer ${item.bgColor}`}
+              >
+                <div className="flex items-center gap-4 min-w-0">
+                  {/* Icon Box */}
+                  <div className="w-12 h-12 rounded-xl bg-white border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-center flex-shrink-0 group-hover:rotate-6 transition-transform">
+                    <LinkIcon type={item.icon} />
+                  </div>
+
+                  {/* Title & Subtitle */}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-black text-base sm:text-lg text-black leading-tight">
+                        {item.title}
+                      </span>
+                      {item.badge && (
+                        <span className="px-2 py-0.5 bg-black text-white font-mono font-black text-[10px] uppercase rounded border border-black shadow-[1px_1px_0px_0px_#fff]">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                    {item.subtitle && (
+                      <p className="text-xs sm:text-sm font-bold text-neutral-800 truncate mt-1">
+                        {item.subtitle}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Arrow Action */}
+                <div className="w-9 h-9 rounded-lg bg-black text-white flex items-center justify-center flex-shrink-0 ml-2 group-hover:bg-[#FFE600] group-hover:text-black transition-colors border-2 border-black">
+                  <ArrowUpRight className="w-5 h-5" strokeWidth={3} />
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════
+            4. SKILLS & PROFICIENCY (COLLAPSIBLE)
+        ════════════════════════════════════════ */}
+        <section className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] rounded-2xl overflow-hidden">
           <button
             onClick={() => setShowSkills(!showSkills)}
-            className="w-full flex items-center justify-between py-3 px-4 rounded-2xl bg-slate-900/40 border border-slate-800/50 hover:bg-slate-800/40 hover:border-slate-700/50 transition-all text-sm font-bold text-slate-200 active:scale-[0.99]"
+            className="w-full flex items-center justify-between p-5 bg-[#FFE600] border-b-2 border-black font-black text-base uppercase cursor-pointer hover:bg-yellow-300 transition-colors"
           >
             <div className="flex items-center gap-2">
-              <Code2 className="w-4 h-4 text-indigo-400" />
-              <span>기술 스택 & 숙련도</span>
+              <Code2 className="w-5 h-5 text-black" strokeWidth={3} />
+              <span>SKILL PROFICIENCY MATRIX</span>
             </div>
-            {showSkills ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+            {showSkills ? <ChevronUp className="w-5 h-5 text-black" strokeWidth={3} /> : <ChevronDown className="w-5 h-5 text-black" strokeWidth={3} />}
           </button>
 
           {showSkills && (
-            <div className="mt-3 p-5 rounded-2xl bg-slate-900/40 border border-slate-800/50 space-y-4">
+            <div className="p-6 space-y-4 bg-white">
               {skills.map((skill, i) => (
                 <div key={skill.name} className="space-y-1.5">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-slate-300">{skill.name}</span>
-                    <span className="text-xs font-bold text-slate-400">{skill.level}%</span>
+                  <div className="flex justify-between items-center font-black text-xs uppercase">
+                    <span>{skill.name}</span>
+                    <span className="px-2 py-0.5 bg-black text-white font-mono rounded">{skill.level}%</span>
                   </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                  {/* Gauge Bar */}
+                  <div className="h-4 bg-[#FAF7EE] border-2 border-black rounded-lg overflow-hidden shadow-[2px_2px_0px_0px_#000]">
                     <div
-                      className={`h-full rounded-full bg-gradient-to-r ${skill.color} transition-all duration-700 ease-out`}
+                      className={`h-full border-r-2 border-black ${skill.color} transition-all duration-700 ease-out`}
                       style={{
                         width: `${animatedLevels[i]}%`,
-                        transitionDelay: `${i * 80}ms`,
+                        transitionDelay: `${i * 70}ms`,
                       }}
                     />
                   </div>
@@ -586,64 +598,67 @@ export default function ProfilePage() {
           )}
         </section>
 
-        {/* ══════════════════════════════════
-            PROJECTS (collapsible)
-        ══════════════════════════════════ */}
-        <section className="mb-8">
+        {/* ════════════════════════════════════════
+            5. FEATURED PROJECTS (COLLAPSIBLE)
+        ════════════════════════════════════════ */}
+        <section className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] rounded-2xl overflow-hidden">
           <button
             onClick={() => setShowProjects(!showProjects)}
-            className="w-full flex items-center justify-between py-3 px-4 rounded-2xl bg-slate-900/40 border border-slate-800/50 hover:bg-slate-800/40 hover:border-slate-700/50 transition-all text-sm font-bold text-slate-200 active:scale-[0.99]"
+            className="w-full flex items-center justify-between p-5 bg-[#00F59B] border-b-2 border-black font-black text-base uppercase cursor-pointer hover:bg-emerald-300 transition-colors"
           >
             <div className="flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-amber-400" />
-              <span>프로젝트 포트폴리오</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25 font-semibold">
+              <Trophy className="w-5 h-5 text-black" strokeWidth={3} />
+              <span>PROJECT SHOWCASE</span>
+              <span className="px-2 py-0.5 bg-black text-white font-mono text-xs rounded">
                 {projects.length}
               </span>
             </div>
-            {showProjects ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+            {showProjects ? <ChevronUp className="w-5 h-5 text-black" strokeWidth={3} /> : <ChevronDown className="w-5 h-5 text-black" strokeWidth={3} />}
           </button>
 
           {showProjects && (
-            <div className="mt-3 space-y-3">
-              {projects.map((project) => (
+            <div className="p-5 space-y-4 bg-[#FAF7EE]">
+              {projects.map((proj) => (
                 <a
-                  key={project.id}
-                  href={project.url}
+                  key={proj.id}
+                  href={proj.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group block p-5 rounded-2xl bg-slate-900/50 border border-slate-800/60 hover:border-indigo-600/40 hover:bg-slate-800/50 hover:shadow-lg hover:shadow-indigo-950/30 transition-all duration-200 active:scale-[0.99]"
+                  className={`block p-5 bg-white border-3 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all rounded-xl cursor-pointer group`}
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors leading-snug">
-                      {project.title}
+                    <h3 className="text-base font-black text-black group-hover:text-indigo-600 transition-colors">
+                      {proj.title}
                     </h3>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${
-                        project.status === 'active'
-                          ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25'
-                          : 'bg-slate-700/50 text-slate-400 border-slate-600/30'
-                      }`}>
-                        {project.status === 'active' ? '진행 중' : '완료'}
-                      </span>
-                    </div>
+                    <span className="px-2.5 py-0.5 bg-black text-[#FFE600] font-mono font-black text-[10px] uppercase rounded border border-black">
+                      {proj.status === 'active' ? 'IN PROGRESS' : 'DONE'}
+                    </span>
                   </div>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-3">{project.description}</p>
+
+                  <p className="text-xs sm:text-sm font-semibold text-neutral-700 leading-relaxed mb-3">
+                    {proj.description}
+                  </p>
+
+                  {/* Tags */}
                   <div className="flex flex-wrap gap-1.5 mb-3">
-                    {project.tags.map((tag) => (
-                      <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-400 border border-indigo-800/40 font-medium">
-                        {tag}
+                    {proj.tags.map((t) => (
+                      <span
+                        key={t}
+                        className="px-2 py-0.5 bg-[#FAF7EE] text-black font-bold text-[10px] border border-black rounded"
+                      >
+                        {t}
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <CalendarDays className="w-3 h-3" />
-                      {project.period}
+
+                  <div className="flex items-center justify-between text-xs font-black text-neutral-600 border-t-2 border-black/10 pt-2.5">
+                    <span className="flex items-center gap-1 font-mono">
+                      <CalendarDays className="w-3.5 h-3.5" strokeWidth={2.5} />
+                      {proj.period}
                     </span>
-                    <span className="flex items-center gap-1 text-amber-400/80">
-                      <Star className="w-3 h-3" />
-                      {project.stars.toLocaleString()}
+                    <span className="flex items-center gap-1 font-mono bg-[#FFE600] px-2 py-0.5 border border-black rounded text-black">
+                      <Star className="w-3.5 h-3.5 fill-black" strokeWidth={2} />
+                      {proj.stars}
                     </span>
                   </div>
                 </a>
@@ -652,25 +667,28 @@ export default function ProfilePage() {
           )}
         </section>
 
-        {/* ══════════════════════════════════
-            FOOTER
-        ══════════════════════════════════ */}
-        <footer className="text-center space-y-1.5">
-          <p className="text-xs text-slate-500">© 2026 김선규 · All rights reserved.</p>
-          <p className="text-[11px] text-slate-600">
-            Made with <span className="text-rose-500">♥</span> · Powered by{' '}
-            <span className="text-indigo-400 font-semibold">MyLink</span>
+        {/* ════════════════════════════════════════
+            6. FOOTER (NEOBRUTALISM)
+        ════════════════════════════════════════ */}
+        <footer className="text-center py-6 space-y-2">
+          <div className="inline-block px-4 py-2 bg-black text-white font-mono font-black text-xs uppercase border-2 border-black shadow-[3px_3px_0px_0px_#FFE600] rotate-[-1deg]">
+            © 2026 KIM SEONGYU · BUILT WITH NEXT.JS 16
+          </div>
+          <p className="text-xs font-black text-neutral-600">
+            NEOBRUTALISM EDITION · ALL RIGHTS RESERVED
           </p>
         </footer>
-      </div>
 
-      {/* ── Toast ── */}
+      </main>
+
+      {/* ── Toast Popup (Neobrutalism Sticker Style) ── */}
       {toastMessage && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-slate-900/95 text-white border border-white/15 shadow-2xl backdrop-blur-md text-xs font-semibold flex items-center gap-2 animate-bounce">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-          {toastMessage}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-[#FFE600] text-black border-3 border-black shadow-[5px_5px_0px_0px_#000] font-black text-xs uppercase rounded-xl flex items-center gap-2 animate-bounce">
+          <Sparkles className="w-4 h-4 fill-black" strokeWidth={2.5} />
+          <span>{toastMessage}</span>
         </div>
       )}
+
     </div>
   );
 }
