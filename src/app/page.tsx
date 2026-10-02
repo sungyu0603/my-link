@@ -1,691 +1,764 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import {
-  Globe,
-  BookOpen,
-  Mail,
-  Coffee,
-  Share2,
-  Check,
-  ExternalLink,
-  Sparkles,
-  Code2,
-  MapPin,
+  Search,
   Heart,
-  Star,
-  Zap,
-  Briefcase,
-  CheckCircle2,
-  MessageSquare,
+  Share2,
   ChevronDown,
   ChevronUp,
-  CalendarDays,
-  Trophy,
-  Layers,
-  ArrowUpRight,
-  Flame,
-  Terminal,
+  ArrowRight,
+  ExternalLink,
+  Check,
+  Globe,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 // ─────────────────────────────────────────────
-// Social SVG Icons (Neobrutalism custom vector)
+// Nike Swoosh & Minimal Vector Marks
 // ─────────────────────────────────────────────
-function GithubIcon({ className }: { className?: string }) {
+function NikeSwoosh({ className = 'w-14 h-5 fill-current' }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-    </svg>
-  );
-}
-
-function LinkedinIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v7.6h2.79v-7.6H6.46M7.86 6.81a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/>
-    </svg>
-  );
-}
-
-function TwitterIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-    </svg>
-  );
-}
-
-function InstagramIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    <svg className={className} viewBox="0 0 24 24">
+      <path d="M21.707 5.293c-2.316-.708-6.196 0-9.873 2.92-3.158 2.508-6.685 6.467-8.334 8.787-.5.707-.167 1.167.583.917 1.667-.584 4.5-1.917 6.25-2.75 3.333-1.584 7.583-4.167 10.5-7.584.834-.916 1.417-1.917.874-2.29z" />
     </svg>
   );
 }
 
 // ─────────────────────────────────────────────
-// Types
+// Design Tokens Mapping
 // ─────────────────────────────────────────────
-interface LinkItem {
+// colors: ink (#111111), canvas (#ffffff), soft-cloud (#f5f5f5), hairline (#cacacb), mute (#707072), sale (#d30005)
+
+interface LinkCardItem {
   id: string;
-  title: string;
-  subtitle?: string;
-  url: string;
-  icon: 'github' | 'blog' | 'email' | 'portfolio' | 'instagram' | 'coffee' | 'linkedin' | 'calendar' | 'newsletter';
-  badge?: string;
-  bgColor: string;
-  featured?: boolean;
-}
-
-interface ProjectItem {
-  id: string;
-  title: string;
-  description: string;
-  tags: string[];
-  stars: number;
-  status: 'active' | 'completed';
-  period: string;
-  url: string;
-  color: string;
-}
-
-interface SkillItem {
   name: string;
-  level: number;
-  color: string;
+  category: string;
+  badge?: string;
+  url: string;
+  imageUrl: string;
+  tag: string;
+  priceNote?: string;
+  isSale?: boolean;
+  swatches: string[];
 }
 
-// ─────────────────────────────────────────────
-// Data
-// ─────────────────────────────────────────────
-const profile = {
-  name: '김선규',
-  handle: '@seongyu_kim',
-  role: 'FULLSTACK DEV',
-  title: '풀스택 소프트웨어 엔지니어 & 프로덕트 빌더 🚀',
-  bio: '복잡한 문제를 단순하고 직관적인 코드로 풀어냅니다. 현대적인 웹 기술 스택(Next.js, TypeScript)과 실용적인 사용자 경험을 집요하게 연구합니다.',
-  location: '서울, 대한민국',
-  university: '한양대학교 컴퓨터소프트웨어학부',
-  email: 'sunkyu@hanyang.ac.kr',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-  isAvailableForHire: true,
-  likes: 142,
-};
-
-const skills: SkillItem[] = [
-  { name: 'React / Next.js', level: 95, color: 'bg-[#FFE600]' },
-  { name: 'TypeScript', level: 92, color: 'bg-[#38BDF8]' },
-  { name: 'Tailwind CSS', level: 90, color: 'bg-[#00F59B]' },
-  { name: 'Node.js / Express', level: 82, color: 'bg-[#A78BFA]' },
-  { name: 'PostgreSQL / Prisma', level: 80, color: 'bg-[#FF6B81]' },
-  { name: 'Docker / CI/CD', level: 75, color: 'bg-[#FB923C]' },
-];
-
-const techBadges = [
-  { name: 'Next.js 16', bg: 'bg-[#FFE600]' },
-  { name: 'TypeScript', bg: 'bg-[#38BDF8]' },
-  { name: 'React 19', bg: 'bg-[#00F59B]' },
-  { name: 'Tailwind', bg: 'bg-[#A78BFA]' },
-  { name: 'Node.js', bg: 'bg-[#FF6B81]' },
-  { name: 'PostgreSQL', bg: 'bg-[#FBBF24]' },
-  { name: 'Figma', bg: 'bg-[#F472B6]' },
-  { name: 'Docker', bg: 'bg-[#67E8F9]' },
-];
-
-const links: LinkItem[] = [
-  {
-    id: 'portfolio',
-    title: '개인 포트폴리오 웹사이트 🌐',
-    subtitle: '주요 프로젝트와 최신 작업물을 한눈에 둘러보세요',
-    url: 'https://sunkyu.dev',
-    icon: 'portfolio',
-    badge: 'MUST VISIT',
-    bgColor: 'bg-[#FFE600]',
-    featured: true,
-  },
-  {
-    id: 'blog',
-    title: '기술 블로그 · Tech Insights ✍️',
-    subtitle: '웹 성능 최적화, 프론트엔드 아키텍처 및 개발 회고록',
-    url: 'https://velog.io/@sunkyu',
-    icon: 'blog',
-    badge: 'NEW POST',
-    bgColor: 'bg-[#E0E7FF]',
-    featured: true,
-  },
-  {
-    id: 'github',
-    title: 'GitHub 오픈소스 레포지토리 ⭐',
-    subtitle: '유용한 오픈소스 컴포넌트 라이브러리와 유틸리티',
-    url: 'https://github.com',
-    icon: 'github',
-    badge: '1.2k STARS',
-    bgColor: 'bg-[#A7F3D0]',
-  },
-  {
-    id: 'newsletter',
-    title: '개발자 뉴스레터 구독 📮',
-    subtitle: '매주 실무 팁과 글로벌 웹 개발 트렌드를 보내드립니다',
-    url: 'https://newsletter.example.com',
-    icon: 'newsletter',
-    badge: 'FREE',
-    bgColor: 'bg-[#FECDD3]',
-  },
-  {
-    id: 'calendar',
-    title: '1:1 커피챗 & 멘토링 신청 💬',
-    subtitle: '코드 리뷰, 커리어 고민, 협업 아이디어 언제든 환영합니다',
-    url: 'https://calendly.com',
-    icon: 'calendar',
-    badge: 'AVAILABLE',
-    bgColor: 'bg-[#BAE6FD]',
-  },
-  {
-    id: 'email',
-    title: '이메일 직접 보내기 ✉️',
-    subtitle: 'sunkyu@hanyang.ac.kr (프로젝트 및 채용 제안)',
-    url: 'mailto:sunkyu@hanyang.ac.kr',
-    icon: 'email',
-    bgColor: 'bg-[#FED7AA]',
-  },
-  {
-    id: 'coffee',
-    title: '커피 한 잔 서포트하기 ☕',
-    subtitle: '오픈소스 활동과 양질의 아티클 제작에 큰 힘이 됩니다!',
-    url: 'https://buymeacoffee.com',
-    icon: 'coffee',
-    badge: 'BUY COFFEE',
-    bgColor: 'bg-[#FDE047]',
-  },
-];
-
-const projects: ProjectItem[] = [
-  {
-    id: 'p1',
-    title: '⚡ HyperLink - 링크인바이오 플랫폼',
-    description: '크리에이터와 개발자를 위한 초경량 고성능 링크 관리 및 방문자 통계 분석 플랫폼.',
-    tags: ['Next.js 16', 'TypeScript', 'Tailwind', 'PostgreSQL'],
-    stars: 480,
-    status: 'active',
-    period: '2025.10 – 진행 중',
-    url: 'https://github.com',
-    color: 'bg-[#FFE600]',
-  },
-  {
-    id: 'p2',
-    title: '🤖 AI Code Reviewer Bot',
-    description: 'GitHub PR 생성 시 코드 품질, 보안 취약점, 성능 개선점을 분석해주는 LLM 기반 자동 리뷰 봇.',
-    tags: ['Node.js', 'OpenAI API', 'GitHub Actions', 'Docker'],
-    stars: 820,
-    status: 'completed',
-    period: '2025.04 – 2025.08',
-    url: 'https://github.com',
-    color: 'bg-[#BAE6FD]',
-  },
-  {
-    id: 'p3',
-    title: '💻 DevSpace - 개발자 생산성 대시보드',
-    description: 'GitHub 알림, 테크 피드, 투두 리스트를 한 화면에서 다루는 모던 New Tab 확장 프로그램.',
-    tags: ['React 19', 'Zustand', 'Chrome Extension', 'Tailwind'],
-    stars: 310,
-    status: 'completed',
-    period: '2025.01 – 2025.03',
-    url: 'https://github.com',
-    color: 'bg-[#A7F3D0]',
-  },
-];
-
-// ─────────────────────────────────────────────
-// Link Icon Selector
-// ─────────────────────────────────────────────
-function LinkIcon({ type }: { type: LinkItem['icon'] }) {
-  const cls = 'w-5 h-5 text-black';
-  switch (type) {
-    case 'github': return <GithubIcon className={cls} />;
-    case 'instagram': return <InstagramIcon className={cls} />;
-    case 'linkedin': return <LinkedinIcon className={cls} />;
-    case 'blog': return <BookOpen className={cls} strokeWidth={2.5} />;
-    case 'portfolio': return <Globe className={cls} strokeWidth={2.5} />;
-    case 'email': return <Mail className={cls} strokeWidth={2.5} />;
-    case 'coffee': return <Coffee className={cls} strokeWidth={2.5} />;
-    case 'calendar': return <CalendarDays className={cls} strokeWidth={2.5} />;
-    case 'newsletter': return <MessageSquare className={cls} strokeWidth={2.5} />;
-    default: return <ExternalLink className={cls} strokeWidth={2.5} />;
-  }
+interface ProjectCardItem {
+  id: string;
+  title: string;
+  role: string;
+  period: string;
+  description: string;
+  tech: string[];
+  imageUrl: string;
+  demoUrl: string;
+  githubUrl: string;
+  metric: string;
 }
 
-// ─────────────────────────────────────────────
-// Main Neobrutalism Profile Page
-// ─────────────────────────────────────────────
-export default function ProfilePage() {
-  const [copied, setCopied] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [likes, setLikes] = useState(profile.likes);
+export default function NikeEditorialPage() {
+  const [activeFilter, setActiveFilter] = useState<'ALL' | 'CORE' | 'WRITING' | 'NETWORK'>('ALL');
+  const [likes, setLikes] = useState(240);
   const [isLiked, setIsLiked] = useState(false);
-  const [showProjects, setShowProjects] = useState(true);
-  const [showSkills, setShowSkills] = useState(true);
-  const [animatedLevels, setAnimatedLevels] = useState<number[]>(skills.map(() => 0));
+  const [copied, setCopied] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (showSkills) {
-      const timer = setTimeout(() => {
-        setAnimatedLevels(skills.map((s) => s.level));
-      }, 100);
-      return () => clearTimeout(timer);
-    } else {
-      setAnimatedLevels(skills.map(() => 0));
-    }
-  }, [showSkills]);
+  // Accordion state for PDP-style disclosures
+  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
+    spec: true,
+    skills: false,
+    shipping: false,
+  });
+
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 2500);
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 2400);
   };
 
   const handleShare = async () => {
     const url = typeof window !== 'undefined' ? window.location.href : 'https://sunkyu.dev';
     if (navigator.share) {
       try {
-        await navigator.share({ title: '김선규 | 소프트웨어 개발자 프로필', url });
+        await navigator.share({ title: 'SEONGYU KIM | SOFTWARE ENGINEER', url });
         return;
       } catch {
-        /* fallback to copy */
+        /* fallback */
       }
     }
     navigator.clipboard.writeText(url);
     setCopied(true);
-    showToast('✨ 프로필 링크가 복사되었습니다!');
+    showToast('LINK COPIED TO CLIPBOARD');
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleLike = () => {
     if (!isLiked) {
-      setLikes((p) => p + 1);
+      setLikes((n) => n + 1);
       setIsLiked(true);
-      showToast('💖 응원해주셔서 정말 감사합니다!');
+      showToast('ADDED TO WISHLIST');
     } else {
-      setLikes((p) => p - 1);
+      setLikes((n) => n - 1);
       setIsLiked(false);
     }
   };
 
+  // ─────────────────────────────────────────────
+  // Data: Curated Links (Product Card Model)
+  // ─────────────────────────────────────────────
+  const links: LinkCardItem[] = [
+    {
+      id: 'l1',
+      name: 'Official Portfolio & Case Studies',
+      category: "Engineer's Flagship Digital Space",
+      badge: 'JUST IN',
+      url: 'https://sunkyu.dev',
+      imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80',
+      tag: 'CORE',
+      priceNote: 'Live V2.5',
+      swatches: ['#111111', '#cacacb', '#f5f5f5'],
+    },
+    {
+      id: 'l2',
+      name: 'Technical Blog (Tech Insights)',
+      category: 'Systems, Next.js Architecture & Retrospectives',
+      badge: 'HIGH DEMAND',
+      url: 'https://velog.io/@sunkyu',
+      imageUrl: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=80',
+      tag: 'WRITING',
+      priceNote: '5 New Articles',
+      isSale: true,
+      swatches: ['#111111', '#0a7281'],
+    },
+    {
+      id: 'l3',
+      name: 'GitHub Open Source Repositories',
+      category: 'Component Libraries & Toolkits',
+      badge: '1.2K STARS',
+      url: 'https://github.com',
+      imageUrl: 'https://images.unsplash.com/photo-1618401471353-b98aedd04e11?w=800&auto=format&fit=crop&q=80',
+      tag: 'CORE',
+      priceNote: 'MIT Licensed',
+      swatches: ['#111111', '#4b4b4d'],
+    },
+    {
+      id: 'l4',
+      name: 'Developer Newsletter Edition',
+      category: 'Weekly Frontend Patterns & Production Notes',
+      url: 'https://newsletter.example.com',
+      imageUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&auto=format&fit=crop&q=80',
+      tag: 'WRITING',
+      priceNote: 'Free Subscription',
+      swatches: ['#ffffff', '#cacacb'],
+    },
+    {
+      id: 'l5',
+      name: '1:1 Technical Mentoring & Coffee Chat',
+      category: 'Code Architecture & Career Advisory',
+      badge: 'LIMITED SLOTS',
+      url: 'https://calendly.com',
+      imageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80',
+      tag: 'NETWORK',
+      priceNote: 'Available Weekly',
+      swatches: ['#111111', '#39393b'],
+    },
+    {
+      id: 'l6',
+      name: 'Direct Project Inquiry via Email',
+      category: 'sunkyu@hanyang.ac.kr',
+      url: 'mailto:sunkyu@hanyang.ac.kr',
+      imageUrl: 'https://images.unsplash.com/photo-1557200134-90327ee9fafa?w=800&auto=format&fit=crop&q=80',
+      tag: 'NETWORK',
+      priceNote: 'Response within 24h',
+      swatches: ['#111111'],
+    },
+  ];
+
+  const filteredLinks = activeFilter === 'ALL' ? links : links.filter((l) => l.tag === activeFilter);
+
+  // ─────────────────────────────────────────────
+  // Data: Featured Projects (Campaign Row)
+  // ─────────────────────────────────────────────
+  const projects: ProjectCardItem[] = [
+    {
+      id: 'p1',
+      title: 'HYPERLINK PLATFORM',
+      role: 'Lead Architect',
+      period: '2025.10 – PRESENT',
+      description: 'Ultra-lightweight creator link-in-bio & audience telemetry platform built on Next.js 16 and PostgreSQL.',
+      tech: ['Next.js 16', 'TypeScript', 'Tailwind CSS', 'PostgreSQL'],
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
+      demoUrl: 'https://sunkyu.dev',
+      githubUrl: 'https://github.com',
+      metric: '480 STARS',
+    },
+    {
+      id: 'p2',
+      title: 'AI CODE REVIEWER ENGINE',
+      role: 'Full-Stack Developer',
+      period: '2025.04 – 2025.08',
+      description: 'Automated pull-request analysis bot evaluating code safety, performance bottlenecks, and test coverage.',
+      tech: ['Node.js', 'OpenAI API', 'GitHub Actions', 'Docker'],
+      imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80',
+      demoUrl: 'https://sunkyu.dev',
+      githubUrl: 'https://github.com',
+      metric: '820 STARS',
+    },
+    {
+      id: 'p3',
+      title: 'DEVSPACE WORKSPACE',
+      role: 'Frontend Engineer',
+      period: '2025.01 – 2025.03',
+      description: 'Productivity command-center chrome extension bringing telemetry feeds, tasks, and GitHub alerts into one tab.',
+      tech: ['React 19', 'Zustand', 'Chrome API', 'Tailwind'],
+      imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+      demoUrl: 'https://sunkyu.dev',
+      githubUrl: 'https://github.com',
+      metric: '310 STARS',
+    },
+  ];
+
   return (
-    <div className="min-h-screen py-8 sm:py-14 px-4 font-sans text-black selection:bg-[#FFE600] selection:text-black">
-      
-      {/* ── Top Floating Action Bar ── */}
-      <header className="max-w-2xl mx-auto mb-6 flex items-center justify-between">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-black text-[#FFE600] font-black text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000] rotate-[-1deg]">
-          <Terminal className="w-3.5 h-3.5" />
-          <span>PORTFOLIO_V2.0</span>
+    <div className="min-h-screen bg-white text-[#111111] antialiased selection:bg-[#111111] selection:text-white">
+
+      {/* ══════════════════════════════════════════════
+          1. UTILITY BAR ({component.utility-bar})
+          Height ~36px, Soft Cloud (#f5f5f5), caption-sm (12px)
+      ══════════════════════════════════════════════ */}
+      <div className="w-full bg-[#f5f5f5] text-[#111111] text-[12px] font-medium h-9 px-6 sm:px-12 flex items-center justify-between border-b border-[#e5e5e5]">
+        <div className="flex items-center gap-4 text-[#707072]">
+          <span>KOREA, REPUBLIC OF</span>
+          <span className="hidden sm:inline">/</span>
+          <span className="hidden sm:inline text-[#111111] font-semibold">HANYANG UNIV. COMP SCI</span>
+        </div>
+        <div className="flex items-center gap-5 text-[#111111] font-medium">
+          <a href="mailto:sunkyu@hanyang.ac.kr" className="hover:underline">Contact</a>
+          <span>·</span>
+          <button onClick={handleShare} className="hover:underline cursor-pointer">
+            {copied ? 'Copied' : 'Share'}
+          </button>
+          <span>·</span>
+          <span className="text-[#007d48] font-semibold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#007d48]" />
+            Available for Hire
+          </span>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════
+          2. PRIMARY NAV ({component.primary-nav})
+          Height 60px, Canvas (#ffffff), Hairline soft bottom
+      ══════════════════════════════════════════════ */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#e5e5e5] px-6 sm:px-12 h-16 flex items-center justify-between">
+        {/* Left: Brand Monogram / Swoosh */}
+        <div className="flex items-center gap-3">
+          <NikeSwoosh className="w-12 h-4 text-[#111111]" />
+          <span className="text-sm font-semibold tracking-tight uppercase pl-1 border-l border-[#cacacb]">
+            SEONGYU KIM
+          </span>
         </div>
 
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-2 px-4 py-2 bg-white text-black font-extrabold text-xs uppercase border-2 border-black shadow-[3px_3px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all cursor-pointer"
-        >
-          {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
-          <span>{copied ? 'COPIED!' : 'SHARE'}</span>
-        </button>
+        {/* Center: Main Nav Links */}
+        <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium">
+          <a href="#campaign" className="hover:text-[#707072] transition-colors py-2 border-b-2 border-[#111111]">
+            Campaign
+          </a>
+          <a href="#featured" className="hover:text-[#707072] transition-colors py-2">
+            Links
+          </a>
+          <a href="#projects" className="hover:text-[#707072] transition-colors py-2">
+            Projects
+          </a>
+          <a href="#spec" className="hover:text-[#707072] transition-colors py-2">
+            Specifications
+          </a>
+        </nav>
+
+        {/* Right: Actions Cluster (Search Pill + Circular Icons) */}
+        <div className="flex items-center gap-3">
+          {/* Search Pill */}
+          <div className="hidden sm:flex items-center bg-[#f5f5f5] text-[#111111] h-10 px-4 rounded-full w-48 focus-within:w-64 focus-within:bg-white focus-within:border-2 focus-within:border-[#111111] transition-all">
+            <Search className="w-4 h-4 text-[#707072] mr-2.5 flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="Search links..."
+              className="bg-transparent text-sm w-full outline-none placeholder:text-[#707072]"
+            />
+          </div>
+
+          {/* Circular Wishlist Button */}
+          <button
+            onClick={handleLike}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+              isLiked ? 'bg-[#111111] text-white' : 'bg-[#f5f5f5] text-[#111111] hover:bg-[#e5e5e5]'
+            }`}
+            title="Cheer / Wishlist"
+            aria-label="Favorite"
+          >
+            <Heart className={`w-4 h-4 ${isLiked ? 'fill-white' : ''}`} />
+          </button>
+
+          {/* Circular Share Button */}
+          <button
+            onClick={handleShare}
+            className="w-10 h-10 rounded-full bg-[#f5f5f5] text-[#111111] hover:bg-[#e5e5e5] flex items-center justify-center transition-all cursor-pointer"
+            title="Share Profile"
+            aria-label="Share"
+          >
+            {copied ? <Check className="w-4 h-4 text-[#007d48]" /> : <Share2 className="w-4 h-4" />}
+          </button>
+        </div>
       </header>
 
-      {/* ── Main Container ── */}
-      <main className="max-w-2xl mx-auto space-y-6">
+      {/* ══════════════════════════════════════════════
+          3. EDITORIAL CAMPAIGN HERO ({component.campaign-tile})
+          Towering uppercase Futura display lockup (96px, 0.9 lh)
+          burned directly into full-bleed editorial imagery.
+          Pill CTA (white outline-on-image) anchored at bottom-left.
+      ══════════════════════════════════════════════ */}
+      <section id="campaign" className="relative w-full overflow-hidden bg-black text-white">
+        {/* Full-bleed Campaign Background Image */}
+        <div className="relative w-full h-[580px] sm:h-[680px] lg:h-[760px]">
+          <Image
+            src="https://images.unsplash.com/photo-1517134191118-9d595e4c8c2b?w=1800&auto=format&fit=crop&q=85"
+            alt="Editorial Campaign Photography"
+            fill
+            priority
+            className="object-cover opacity-80"
+            sizes="100vw"
+          />
+          {/* Subtle Contrast Wash */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/30" />
 
-        {/* ════════════════════════════════════════
-            1. HERO PROFILE CARD (NEOBRUTALISM)
-        ════════════════════════════════════════ */}
-        <section className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] rounded-3xl overflow-hidden relative">
-
-          {/* Decorative Checkerboard / Graphic Banner */}
-          <div className="h-36 sm:h-44 bg-[#FFE600] border-b-4 border-black relative overflow-hidden flex items-center justify-between px-6">
-            {/* Background Graphic Lines */}
-            <div
-              className="absolute inset-0 opacity-15 pointer-events-none"
-              style={{
-                backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 15px, transparent 0, transparent 30px)',
-              }}
-            />
-            
-            {/* Quirky Banner Badges */}
-            <div className="relative z-10 hidden sm:flex flex-col gap-1.5">
-              <span className="inline-block px-3 py-1 bg-black text-white font-mono font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_0px_#fff]">
-                ⚡ FULL-STACK ARCHITECT
-              </span>
-              <span className="inline-block px-3 py-1 bg-[#00F59B] text-black font-extrabold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-                🚀 BUILDER & PROBLEM SOLVER
-              </span>
-            </div>
-
-            <div className="relative z-10 ml-auto">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FF6B81] text-white font-black text-xs uppercase border-2 border-black shadow-[3px_3px_0px_0px_#000] rotate-[3deg]">
-                <Flame className="w-4 h-4 fill-white" />
-                OPEN FOR HIRES
-              </span>
-            </div>
-          </div>
-
-          {/* Main Info Body */}
-          <div className="px-6 sm:px-8 pb-8 pt-0">
-            {/* Avatar & Floating Actions */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between -mt-16 sm:-mt-20 gap-4 mb-6">
-              
-              {/* Avatar Box */}
-              <div className="relative group">
-                <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-2xl overflow-hidden bg-[#FFE600] border-4 border-black shadow-[6px_6px_0px_0px_#000]">
-                  <Image
-                    src={profile.avatarUrl}
-                    alt={profile.name}
-                    fill
-                    priority
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="144px"
-                  />
-                </div>
-                {/* Active Indicator Pin */}
-                <div className="absolute -bottom-2 -right-2 px-2.5 py-1 bg-[#00F59B] text-black border-2 border-black font-black text-[11px] shadow-[2px_2px_0px_0px_#000] rotate-[-4deg]">
-                  ONLINE ●
-                </div>
-              </div>
-
-              {/* Heart Cheer Button */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleLike}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-black font-black text-sm uppercase transition-all duration-150 cursor-pointer ${
-                    isLiked
-                      ? 'bg-[#FF6B81] text-white shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
-                      : 'bg-white text-black shadow-[4px_4px_0px_0px_#000] hover:bg-pink-100 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
-                  }`}
-                >
-                  <Heart className={`w-4 h-4 ${isLiked ? 'fill-white' : 'fill-none'}`} strokeWidth={3} />
-                  <span>CHEER {likes}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Profile Meta Details */}
-            <div className="space-y-4 text-center sm:text-left">
-              <div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 justify-center sm:justify-start">
-                  <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-black flex items-center justify-center sm:justify-start gap-2">
-                    {profile.name}
-                    <CheckCircle2 className="w-6 h-6 text-black fill-[#00F59B]" strokeWidth={2.5} />
-                  </h1>
-                  <span className="font-mono font-bold text-sm text-neutral-600 bg-neutral-200 px-2 py-0.5 border border-black rounded inline-block self-center sm:self-auto">
-                    {profile.handle}
-                  </span>
-                </div>
-
-                <div className="mt-2">
-                  <span className="inline-block px-3 py-1 bg-[#FFE600] border-2 border-black font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] rotate-[-1deg]">
-                    {profile.title}
-                  </span>
-                </div>
-              </div>
-
-              {/* Bio description */}
-              <p className="text-sm sm:text-base font-semibold leading-relaxed text-neutral-800 bg-[#FAF7EE] p-4 border-2 border-black rounded-xl shadow-[3px_3px_0px_0px_#000]">
-                {profile.bio}
-              </p>
-
-              {/* Location & Affiliation Badges */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1 font-bold text-xs">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border-2 border-black shadow-[2px_2px_0px_0px_#000] rounded-lg">
-                  <MapPin className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
-                  {profile.location}
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#E0E7FF] border-2 border-black shadow-[2px_2px_0px_0px_#000] rounded-lg">
-                  <Code2 className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
-                  {profile.university}
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#A7F3D0] border-2 border-black shadow-[2px_2px_0px_0px_#000] rounded-lg">
-                  <Briefcase className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
-                  협업 & 외주 가능
-                </span>
-              </div>
-
-              {/* Social Channels Row */}
-              <div className="pt-3 flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
-                {[
-                  { icon: <GithubIcon className="w-4 h-4" />, href: 'https://github.com', bg: 'bg-[#FFE600]', label: 'GitHub' },
-                  { icon: <LinkedinIcon className="w-4 h-4" />, href: 'https://linkedin.com', bg: 'bg-[#BAE6FD]', label: 'LinkedIn' },
-                  { icon: <TwitterIcon className="w-4 h-4" />, href: 'https://twitter.com', bg: 'bg-[#FECDD3]', label: 'X (Twitter)' },
-                  { icon: <InstagramIcon className="w-4 h-4" />, href: 'https://instagram.com', bg: 'bg-[#A7F3D0]', label: 'Instagram' },
-                  { icon: <Mail className="w-4 h-4" strokeWidth={2.5} />, href: `mailto:${profile.email}`, bg: 'bg-[#FED7AA]', label: 'Email' },
-                ].map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={s.label}
-                    className={`p-2.5 ${s.bg} border-2 border-black shadow-[3px_3px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all rounded-xl cursor-pointer`}
-                  >
-                    {s.icon}
-                  </a>
-                ))}
-              </div>
-
-              {/* Stats Neobrutalism Grid */}
-              <div className="pt-4 grid grid-cols-3 gap-3">
-                <div className="p-3 bg-[#FFE600] border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-xl text-center">
-                  <span className="block text-2xl font-black">{links.length}</span>
-                  <span className="text-[11px] font-black uppercase text-black/70">LINKS</span>
-                </div>
-                <div className="p-3 bg-[#00F59B] border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-xl text-center">
-                  <span className="block text-2xl font-black">{projects.length}</span>
-                  <span className="text-[11px] font-black uppercase text-black/70">PROJECTS</span>
-                </div>
-                <div className="p-3 bg-[#38BDF8] border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-xl text-center">
-                  <span className="block text-2xl font-black">8.5k+</span>
-                  <span className="text-[11px] font-black uppercase text-black/70">VIEWS</span>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ════════════════════════════════════════
-            2. TICKER / BADGE STRIP
-        ════════════════════════════════════════ */}
-        <section className="bg-black text-[#FFE600] py-2.5 px-4 border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-2xl flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-mono font-black text-xs uppercase overflow-hidden">
-          {techBadges.map((badge) => (
-            <span
-              key={badge.name}
-              className={`px-2.5 py-1 ${badge.bg} text-black border-2 border-black shadow-[2px_2px_0px_0px_#000] rounded-lg`}
-            >
-              #{badge.name}
+          {/* Locked-in Campaign Typography */}
+          <div className="absolute inset-0 max-w-[1440px] mx-auto px-6 sm:px-12 flex flex-col justify-end pb-12 sm:pb-16">
+            <span className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-[#cacacb] mb-3">
+              ATHLETIC EDITORIAL & SYSTEMS / 2026 EDITION
             </span>
-          ))}
-        </section>
 
-        {/* ════════════════════════════════════════
-            3. LINK CARDS (NEOBRUTALISM CARDS)
-        ════════════════════════════════════════ */}
-        <section className="space-y-3.5">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
-              <span className="px-2 py-0.5 bg-black text-white rounded">EXPLORE</span>
-              <span>CURATED LINKS</span>
-            </h2>
-            <span className="font-mono text-xs font-bold text-neutral-600">({links.length} ITEMS)</span>
+            {/* Towering Futura ND Display Tier (96px / 0.9 Line Height) */}
+            <h1 className="font-display-campaign text-6xl sm:text-8xl lg:text-[104px] tracking-tight uppercase leading-[0.9] text-white max-w-4xl drop-shadow-md">
+              CODE AS A DISCIPLINE.
+            </h1>
+
+            <p className="mt-4 sm:mt-5 text-base sm:text-lg text-[#cacacb] max-w-xl font-normal leading-relaxed">
+              Kim Seongyu is a full-stack software engineer building high-performance web products with mathematical precision, clean architecture, and relentless user focus.
+            </p>
+
+            {/* On-Image Pill CTA ({component.button-outline-on-image}) */}
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a
+                href="#featured"
+                className="inline-flex items-center justify-center bg-white text-[#111111] h-12 px-8 rounded-full text-base font-medium btn-press hover:bg-[#f5f5f5] transition-all cursor-pointer"
+              >
+                EXPLORE LINKS
+              </a>
+              <a
+                href="mailto:sunkyu@hanyang.ac.kr"
+                className="inline-flex items-center justify-center bg-transparent border border-white text-white h-12 px-8 rounded-full text-base font-medium btn-press hover:bg-white/10 transition-all cursor-pointer"
+              >
+                GET IN TOUCH
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════
+          4. SUB-NAV STRIP & CATEGORY FILTER CHIPS
+          Breadcrumb + Filter Chips (Pill geometry: 30px)
+      ══════════════════════════════════════════════ */}
+      <section className="sticky top-16 z-30 bg-white border-b border-[#e5e5e5] px-6 sm:px-12 py-3.5 flex flex-wrap items-center justify-between gap-4">
+        {/* Left: Breadcrumb / Section Counter */}
+        <div className="flex items-center gap-2 text-sm text-[#707072]">
+          <span className="text-[#111111] font-semibold">Featured Work</span>
+          <span>/</span>
+          <span>Directory ({filteredLinks.length})</span>
+        </div>
+
+        {/* Right: Pill Filter Chips */}
+        <div className="flex items-center gap-2 overflow-x-auto py-1">
+          <div className="flex items-center gap-1.5 text-xs text-[#707072] mr-2">
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span className="uppercase font-semibold">FILTER:</span>
           </div>
 
-          <div className="space-y-3">
-            {links.map((item) => (
-              <a
-                key={item.id}
-                href={item.url}
-                target={item.url.startsWith('mailto') ? '_self' : '_blank'}
-                rel="noopener noreferrer"
-                className={`group relative flex items-center justify-between p-4 sm:p-5 rounded-2xl border-4 border-black shadow-[5px_5px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all cursor-pointer ${item.bgColor}`}
+          {(['ALL', 'CORE', 'WRITING', 'NETWORK'] as const).map((cat) => {
+            const isActive = activeFilter === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveFilter(cat)}
+                className={`h-9 px-4 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[#111111] text-white'
+                    : 'bg-white text-[#111111] border border-[#cacacb] hover:border-[#111111]'
+                }`}
               >
-                <div className="flex items-center gap-4 min-w-0">
-                  {/* Icon Box */}
-                  <div className="w-12 h-12 rounded-xl bg-white border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-center flex-shrink-0 group-hover:rotate-6 transition-transform">
-                    <LinkIcon type={item.icon} />
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════
+          5. PRODUCT CARDS GRID ({component.product-card})
+          3-up desktop, 2-up tablet, 1-up mobile
+          0px radius, 0px shadow, flat on canvas.
+          Full-bleed 1:1 image sitting on {colors.soft-cloud} (#f5f5f5).
+      ══════════════════════════════════════════════ */}
+      <main id="featured" className="max-w-[1440px] mx-auto px-6 sm:px-12 py-12">
+        <div className="mb-6 flex items-baseline justify-between">
+          <h2 className="text-2xl sm:text-3xl font-medium tracking-tight uppercase text-[#111111]">
+            CURATED DIRECTORY & PLATFORMS
+          </h2>
+          <span className="text-sm text-[#707072]">Showing {filteredLinks.length} items</span>
+        </div>
+
+        {/* The Grid: 8px Gutters ({spacing.sm}) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-10">
+          {filteredLinks.map((item) => (
+            <div key={item.id} className="group nike-card flex flex-col justify-between">
+              <div>
+                {/* 1:1 Photographic Stage on Soft Cloud */}
+                <div className="relative w-full aspect-square bg-[#f5f5f5] overflow-hidden">
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+
+                  {/* Promo Badge ({component.badge-promo}) */}
+                  {item.badge && (
+                    <div className="absolute top-3 left-3 bg-white text-[#111111] text-[11px] font-semibold px-3 py-1 rounded-full border border-[#cacacb] tracking-wider uppercase">
+                      {item.badge}
+                    </div>
+                  )}
+                </div>
+
+                {/* Below-image Metadata (8px vertical rhythm) */}
+                <div className="pt-3.5 space-y-1">
+                  {/* Swatch Dot Row */}
+                  <div className="flex items-center gap-1.5 py-1">
+                    {item.swatches.map((color, i) => (
+                      <span
+                        key={i}
+                        className={`w-3 h-3 rounded-full border ${
+                          i === 0 ? 'ring-1 ring-offset-1 ring-[#111111]' : ''
+                        }`}
+                        style={{ backgroundColor: color, borderColor: '#cacacb' }}
+                      />
+                    ))}
                   </div>
 
-                  {/* Title & Subtitle */}
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-black text-base sm:text-lg text-black leading-tight">
-                        {item.title}
-                      </span>
-                      {item.badge && (
-                        <span className="px-2 py-0.5 bg-black text-white font-mono font-black text-[10px] uppercase rounded border border-black shadow-[1px_1px_0px_0px_#fff]">
-                          {item.badge}
-                        </span>
-                      )}
-                    </div>
-                    {item.subtitle && (
-                      <p className="text-xs sm:text-sm font-bold text-neutral-800 truncate mt-1">
-                        {item.subtitle}
-                      </p>
+                  {/* Name */}
+                  <h3 className="text-base font-medium text-[#111111] tracking-tight group-hover:underline leading-snug">
+                    {item.name}
+                  </h3>
+
+                  {/* Subtitle ({typography.caption-md} {colors.mute}) */}
+                  <p className="text-sm text-[#707072] leading-normal">{item.category}</p>
+
+                  {/* Price Row / Status */}
+                  <div className="pt-1 flex items-center gap-2 text-sm font-medium">
+                    {item.isSale ? (
+                      <>
+                        <span className="text-[#d30005] font-semibold">{item.priceNote}</span>
+                        <span className="line-through text-[#707072] text-xs">Standard</span>
+                      </>
+                    ) : (
+                      <span className="text-[#111111]">{item.priceNote}</span>
                     )}
                   </div>
                 </div>
+              </div>
 
-                {/* Arrow Action */}
-                <div className="w-9 h-9 rounded-lg bg-black text-white flex items-center justify-center flex-shrink-0 ml-2 group-hover:bg-[#FFE600] group-hover:text-black transition-colors border-2 border-black">
-                  <ArrowUpRight className="w-5 h-5" strokeWidth={3} />
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        {/* ════════════════════════════════════════
-            4. SKILLS & PROFICIENCY (COLLAPSIBLE)
-        ════════════════════════════════════════ */}
-        <section className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] rounded-2xl overflow-hidden">
-          <button
-            onClick={() => setShowSkills(!showSkills)}
-            className="w-full flex items-center justify-between p-5 bg-[#FFE600] border-b-2 border-black font-black text-base uppercase cursor-pointer hover:bg-yellow-300 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Code2 className="w-5 h-5 text-black" strokeWidth={3} />
-              <span>SKILL PROFICIENCY MATRIX</span>
-            </div>
-            {showSkills ? <ChevronUp className="w-5 h-5 text-black" strokeWidth={3} /> : <ChevronDown className="w-5 h-5 text-black" strokeWidth={3} />}
-          </button>
-
-          {showSkills && (
-            <div className="p-6 space-y-4 bg-white">
-              {skills.map((skill, i) => (
-                <div key={skill.name} className="space-y-1.5">
-                  <div className="flex justify-between items-center font-black text-xs uppercase">
-                    <span>{skill.name}</span>
-                    <span className="px-2 py-0.5 bg-black text-white font-mono rounded">{skill.level}%</span>
-                  </div>
-                  {/* Gauge Bar */}
-                  <div className="h-4 bg-[#FAF7EE] border-2 border-black rounded-lg overflow-hidden shadow-[2px_2px_0px_0px_#000]">
-                    <div
-                      className={`h-full border-r-2 border-black ${skill.color} transition-all duration-700 ease-out`}
-                      style={{
-                        width: `${animatedLevels[i]}%`,
-                        transitionDelay: `${i * 70}ms`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* ════════════════════════════════════════
-            5. FEATURED PROJECTS (COLLAPSIBLE)
-        ════════════════════════════════════════ */}
-        <section className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] rounded-2xl overflow-hidden">
-          <button
-            onClick={() => setShowProjects(!showProjects)}
-            className="w-full flex items-center justify-between p-5 bg-[#00F59B] border-b-2 border-black font-black text-base uppercase cursor-pointer hover:bg-emerald-300 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-black" strokeWidth={3} />
-              <span>PROJECT SHOWCASE</span>
-              <span className="px-2 py-0.5 bg-black text-white font-mono text-xs rounded">
-                {projects.length}
-              </span>
-            </div>
-            {showProjects ? <ChevronUp className="w-5 h-5 text-black" strokeWidth={3} /> : <ChevronDown className="w-5 h-5 text-black" strokeWidth={3} />}
-          </button>
-
-          {showProjects && (
-            <div className="p-5 space-y-4 bg-[#FAF7EE]">
-              {projects.map((proj) => (
+              {/* Action Button: Primary Pill ({component.button-primary}) */}
+              <div className="pt-4">
                 <a
-                  key={proj.id}
-                  href={proj.url}
-                  target="_blank"
+                  href={item.url}
+                  target={item.url.startsWith('mailto') ? '_self' : '_blank'}
                   rel="noopener noreferrer"
-                  className={`block p-5 bg-white border-3 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all rounded-xl cursor-pointer group`}
+                  className="w-full inline-flex items-center justify-between bg-[#111111] text-white h-11 px-6 rounded-full text-sm font-medium btn-press hover:bg-[#39393b] transition-all cursor-pointer"
                 >
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="text-base font-black text-black group-hover:text-indigo-600 transition-colors">
-                      {proj.title}
-                    </h3>
-                    <span className="px-2.5 py-0.5 bg-black text-[#FFE600] font-mono font-black text-[10px] uppercase rounded border border-black">
-                      {proj.status === 'active' ? 'IN PROGRESS' : 'DONE'}
-                    </span>
+                  <span>LAUNCH DESTINATION</span>
+                  <ExternalLink className="w-4 h-4 text-white" />
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+
+      {/* ══════════════════════════════════════════════
+          6. EDITORIAL SPORT / PROJECT RAIL ({spacing.section} = 48px)
+          Horizontal showcase inspired by Nike's "Shop by Sport"
+      ══════════════════════════════════════════════ */}
+      <section id="projects" className="border-t border-[#cacacb] bg-white py-14">
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-12">
+          <div className="mb-8 flex items-baseline justify-between">
+            <div>
+              <span className="text-xs font-semibold uppercase text-[#707072] tracking-widest block mb-1">
+                ENGINEERING SPOTLIGHT
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-medium tracking-tight uppercase text-[#111111]">
+                FLAGSHIP BUILDS
+              </h2>
+            </div>
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-[#111111] hover:underline flex items-center gap-1.5"
+            >
+              <span>View GitHub</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+
+          {/* 3-Column Sport Tile Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {projects.map((proj) => (
+              <div key={proj.id} className="relative group overflow-hidden bg-[#f5f5f5] nike-card aspect-[4/5] flex flex-col justify-end p-6">
+                <Image
+                  src={proj.imageUrl}
+                  alt={proj.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+
+                {/* Content Overlay */}
+                <div className="relative z-10 text-white space-y-2">
+                  <div className="flex items-center justify-between text-xs text-[#cacacb] font-medium tracking-wider">
+                    <span>{proj.role}</span>
+                    <span className="bg-white/20 text-white px-2.5 py-0.5 rounded-full">{proj.metric}</span>
                   </div>
 
-                  <p className="text-xs sm:text-sm font-semibold text-neutral-700 leading-relaxed mb-3">
+                  <h3 className="font-display-campaign text-3xl sm:text-4xl tracking-tight text-white leading-none">
+                    {proj.title}
+                  </h3>
+
+                  <p className="text-xs text-[#cacacb] line-clamp-2 leading-relaxed">
                     {proj.description}
                   </p>
 
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {proj.tags.map((t) => (
-                      <span
-                        key={t}
-                        className="px-2 py-0.5 bg-[#FAF7EE] text-black font-bold text-[10px] border border-black rounded"
-                      >
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {proj.tech.map((t) => (
+                      <span key={t} className="text-[10px] bg-black/60 backdrop-blur-sm text-white px-2 py-0.5 rounded-full border border-white/20">
                         {t}
                       </span>
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between text-xs font-black text-neutral-600 border-t-2 border-black/10 pt-2.5">
-                    <span className="flex items-center gap-1 font-mono">
-                      <CalendarDays className="w-3.5 h-3.5" strokeWidth={2.5} />
-                      {proj.period}
-                    </span>
-                    <span className="flex items-center gap-1 font-mono bg-[#FFE600] px-2 py-0.5 border border-black rounded text-black">
-                      <Star className="w-3.5 h-3.5 fill-black" strokeWidth={2} />
-                      {proj.stars}
-                    </span>
+                  {/* On-Image Pill CTA ({component.button-outline-on-image}) */}
+                  <div className="pt-3">
+                    <a
+                      href={proj.demoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-white text-[#111111] h-10 px-6 rounded-full text-xs font-semibold tracking-wide btn-press hover:bg-[#f5f5f5] transition-all cursor-pointer"
+                    >
+                      <span>VIEW PROJECT</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </a>
                   </div>
-                </a>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* ════════════════════════════════════════
-            6. FOOTER (NEOBRUTALISM)
-        ════════════════════════════════════════ */}
-        <footer className="text-center py-6 space-y-2">
-          <div className="inline-block px-4 py-2 bg-black text-white font-mono font-black text-xs uppercase border-2 border-black shadow-[3px_3px_0px_0px_#FFE600] rotate-[-1deg]">
-            © 2026 KIM SEONGYU · BUILT WITH NEXT.JS 16
+                </div>
+              </div>
+            ))}
           </div>
-          <p className="text-xs font-black text-neutral-600">
-            NEOBRUTALISM EDITION · ALL RIGHTS RESERVED
-          </p>
-        </footer>
+        </div>
+      </section>
 
-      </main>
+      {/* ══════════════════════════════════════════════
+          7. PDP-STYLE DISCLOSURE ROWS ({component.pdp-disclosure-row})
+          Stacked rows with {spacing.xl} (24px) padding,
+          1px hairline divider below each.
+      ══════════════════════════════════════════════ */}
+      <section id="spec" className="border-t border-[#cacacb] bg-[#f5f5f5] py-14">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-8">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#707072]">
+              SYSTEM SPECIFICATIONS
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-medium uppercase tracking-tight text-[#111111] mt-1">
+              ENGINEER PROFILE & TECH DATA
+            </h2>
+          </div>
 
-      {/* ── Toast Popup (Neobrutalism Sticker Style) ── */}
-      {toastMessage && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-[#FFE600] text-black border-3 border-black shadow-[5px_5px_0px_0px_#000] font-black text-xs uppercase rounded-xl flex items-center gap-2 animate-bounce">
-          <Sparkles className="w-4 h-4 fill-black" strokeWidth={2.5} />
-          <span>{toastMessage}</span>
+          <div className="bg-white border border-[#cacacb] divide-y divide-[#cacacb]">
+            {/* Row 1: Technical Stack */}
+            <div>
+              <button
+                onClick={() => toggleSection('spec')}
+                className="w-full py-5 px-6 flex items-center justify-between text-left hover:bg-[#f5f5f5] transition-colors cursor-pointer"
+              >
+                <span className="text-base font-medium text-[#111111] uppercase tracking-wide">
+                  Core Technologies & Architecture
+                </span>
+                {openSections.spec ? <ChevronUp className="w-5 h-5 text-[#111111]" /> : <ChevronDown className="w-5 h-5 text-[#111111]" />}
+              </button>
+              {openSections.spec && (
+                <div className="px-6 pb-6 pt-2 text-sm text-[#707072] space-y-3 leading-relaxed border-t border-[#e5e5e5]">
+                  <p>
+                    <strong className="text-[#111111]">Frontend:</strong> Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Turbopack.
+                  </p>
+                  <p>
+                    <strong className="text-[#111111]">Backend & Cloud:</strong> Node.js, Express, PostgreSQL, Prisma ORM, Docker, RESTful & GraphQL APIs.
+                  </p>
+                  <p>
+                    <strong className="text-[#111111]">Engineering Philosophy:</strong> Pure functional composition, rigorous type safety, zero unnecessary dependencies, and accessible UI meeting WCAG AAA specifications.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Row 2: Education & Honors */}
+            <div>
+              <button
+                onClick={() => toggleSection('skills')}
+                className="w-full py-5 px-6 flex items-center justify-between text-left hover:bg-[#f5f5f5] transition-colors cursor-pointer"
+              >
+                <span className="text-base font-medium text-[#111111] uppercase tracking-wide">
+                  Education & Verification
+                </span>
+                {openSections.skills ? <ChevronUp className="w-5 h-5 text-[#111111]" /> : <ChevronDown className="w-5 h-5 text-[#111111]" />}
+              </button>
+              {openSections.skills && (
+                <div className="px-6 pb-6 pt-2 text-sm text-[#707072] space-y-2 border-t border-[#e5e5e5]">
+                  <div className="flex justify-between py-1">
+                    <span className="text-[#111111] font-medium">Hanyang University</span>
+                    <span>Computer Software Engineering</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-[#111111] font-medium">Status</span>
+                    <span className="text-[#007d48] font-semibold">Active Enrollment / In Good Standing</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-[#111111] font-medium">Location</span>
+                    <span>Seoul, Republic of Korea</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Row 3: Collaboration & Engagement Terms */}
+            <div>
+              <button
+                onClick={() => toggleSection('shipping')}
+                className="w-full py-5 px-6 flex items-center justify-between text-left hover:bg-[#f5f5f5] transition-colors cursor-pointer"
+              >
+                <span className="text-base font-medium text-[#111111] uppercase tracking-wide">
+                  Collaboration & Inquiry Policy
+                </span>
+                {openSections.shipping ? <ChevronUp className="w-5 h-5 text-[#111111]" /> : <ChevronDown className="w-5 h-5 text-[#111111]" />}
+              </button>
+              {openSections.shipping && (
+                <div className="px-6 pb-6 pt-2 text-sm text-[#707072] space-y-2 border-t border-[#e5e5e5]">
+                  <p>
+                    All project inquiries, open-source discussions, and freelance contracts are reviewed directly by Kim Seongyu within 24 hours.
+                  </p>
+                  <p>
+                    Preferred channel: <a href="mailto:sunkyu@hanyang.ac.kr" className="underline text-[#111111] font-medium">sunkyu@hanyang.ac.kr</a>
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════
+          8. FOOTER ({component.footer})
+          1px hairline divider, 4-column layout,
+          fine-print row with {typography.utility-xs} (9px)
+      ══════════════════════════════════════════════ */}
+      <footer className="border-t border-[#cacacb] bg-white pt-14 pb-12">
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-12">
+          {/* 4 Column Layout */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-12">
+            <div>
+              <h4 className="text-xs font-bold uppercase text-[#111111] tracking-wider mb-4">
+                RESOURCES
+              </h4>
+              <ul className="space-y-3 text-sm text-[#707072]">
+                <li><a href="https://sunkyu.dev" className="hover:text-[#111111]">Portfolio Site</a></li>
+                <li><a href="https://velog.io/@sunkyu" className="hover:text-[#111111]">Tech Blog</a></li>
+                <li><a href="https://github.com" className="hover:text-[#111111]">GitHub Profile</a></li>
+                <li><a href="#campaign" className="hover:text-[#111111]">Campaign Reel</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase text-[#111111] tracking-wider mb-4">
+                GET HELP & CONNECT
+              </h4>
+              <ul className="space-y-3 text-sm text-[#707072]">
+                <li><a href="mailto:sunkyu@hanyang.ac.kr" className="hover:text-[#111111]">Direct Inquiry</a></li>
+                <li><a href="https://calendly.com" className="hover:text-[#111111]">Schedule 1:1</a></li>
+                <li><a href="https://buymeacoffee.com" className="hover:text-[#111111]">Support via Coffee</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase text-[#111111] tracking-wider mb-4">
+                ENGINEERING
+              </h4>
+              <ul className="space-y-3 text-sm text-[#707072]">
+                <li><a href="#spec" className="hover:text-[#111111]">Next.js 16 System</a></li>
+                <li><a href="#spec" className="hover:text-[#111111]">TypeScript Architecture</a></li>
+                <li><a href="#spec" className="hover:text-[#111111]">WCAG Accessibility</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase text-[#111111] tracking-wider mb-4">
+                LOCATION & STATUS
+              </h4>
+              <div className="space-y-3 text-sm text-[#707072]">
+                <p className="text-[#111111] font-semibold">Seoul, Republic of Korea</p>
+                <p>Hanyang University</p>
+                <div className="pt-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f5f5f5] text-xs font-medium text-[#111111]">
+                    <span className="w-2 h-2 rounded-full bg-[#007d48]" />
+                    Online & Active
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Legal Fine-Print Row ({typography.utility-xs} = 9px) */}
+          <div className="border-t border-[#e5e5e5] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[9px] text-[#707072] uppercase tracking-wider font-medium">
+            <div className="flex items-center gap-3">
+              <span className="text-[#111111] font-bold">© 2026 KIM SEONGYU, INC. ALL RIGHTS RESERVED</span>
+              <span>·</span>
+              <a href="#" className="hover:underline">PRIVACY POLICY</a>
+              <span>·</span>
+              <a href="#" className="hover:underline">TERMS OF SERVICE</a>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Globe className="w-3 h-3 text-[#111111]" />
+              <span className="text-[#111111] font-bold">SOUTH KOREA / EN</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* ── Minimal Toast Feedback ── */}
+      {toastMsg && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-[#111111] text-white text-xs font-medium px-6 py-3 rounded-full shadow-lg tracking-wider uppercase flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <Check className="w-3.5 h-3.5 text-[#007d48]" />
+          <span>{toastMsg}</span>
         </div>
       )}
 

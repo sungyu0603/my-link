@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bebasNeue = Bebas_Neue({
+  weight: "400",
   subsets: ["latin"],
+  variable: "--font-display-campaign",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-ui",
 });
 
 export const metadata: Metadata = {
-  title: "김선규 | 프로필",
-  description: "안녕하세요! 바이브 코딩을 배우고 있는 한양대생 김선규입니다.",
+  title: "KIM SEONGYU | Nike Editorial Portfolio & Links",
+  description: "Software Engineer & Builder — Precision Code and Digital Products.",
 };
 
 export default function RootLayout({
@@ -24,10 +25,10 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="ko"
+      className={`${bebasNeue.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col bg-white text-[#111111]">{children}</body>
     </html>
   );
 }
