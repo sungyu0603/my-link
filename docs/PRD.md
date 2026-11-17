@@ -1,9 +1,9 @@
 # [PRD] 마이링크 (MyLink) 제품 요구사항 정의서
 
-- **문서 버전:** v1.1.0 (시연용 단계별 진행 전략 반영)
-- **작성일:** 2026-10-02
+- **문서 버전:** v1.4.0 (Tailwind CSS 단일화 및 shadcn/ui 기반 재사용 컴포넌트 아키텍처 확정)
+- **작성일:** 2026-11-17
 - **작성자:** Antigravity (AI Pair Programmer)
-- **상태:** 확정 (시연 목적에 맞춰 1단계 프로필 페이지 집중)
+- **상태:** 확정 (모듈 CSS 배제 및 Pure Tailwind CSS 통일, shadcn/ui 재사용 컴포넌트 구성)
 
 ---
 
@@ -80,9 +80,93 @@
   - 우측: 배지(예: `대표 링크`, `NEW`, `인기`) 및 외부 이동 화살표 아이콘
 - **인터랙션:** 마우스 호버 시 떠오르는 모션 효과, 클릭 시 `target="_blank"`로 새 창 연결.
 
-### 4.4 모바일 프레임 레이아웃
-- 데스크톱 화면에서도 모바일 기기 화면을 보는 듯한 편안한 카드 형태(max-w-md, 그림자, 둥근 테두리) 제공.
-- 모바일 기기 접속 시 화면 전체에 자연스럽게 핏되는 반응형 디자인.
+### 4.4 레이아웃 및 뷰포트 사양
+- **모바일 퍼스트 뷰포트:** 스마트폰 화면 비율(최대 480px, `max-w-md`) 중앙 정렬 레이아웃.
+- **나이키 컨테이너 원칙:** 불필요한 카드 외곽 드롭 섀도우를 배제하고, 깔끔한 1px 헤어라인 인셋/디바이더(`hairline-soft`)를 활용하여 매거진/카탈로그처럼 플랫하고 단단한 인상을 제공.
+
+### 4.5 shadcn/ui 기반 Nike 디자인 시스템 구축 사양 (design.md 연계)
+
+`design.md`에 정의된 **Nike Commerce & Editorial Design System**의 핵심 미학을 `shadcn/ui` 아키텍처 위에 1:1로 매핑하여 구축합니다.
+
+#### 1) 핵심 디자인 철학
+- **Mechanical Restraint (극도의 시각적 절제):** 불필요한 장식적 그라디언트 및 부드러운 그림자(Soft Shadow)를 일절 배제(`shadow-none`).
+- **Pill vs Zero-Radius 대비 규칙:**
+  - **인터랙션/액션 요소(Button, Badge, Chip, Input):** 완전한 필 형태(`rounded-full`, 30px pill) 적용.
+  - **컨테이너/구조 요소(Card, Dialog, Panel):** 직각 및 제로 섀도우(`rounded-none`, `shadow-none`) 적용.
+- **Nike Tap Feedback:** 버튼 클릭/터치 시 햅틱 감각의 미세 축소 모션(`active:scale-[0.96] active:opacity-70`, `.btn-press:active`) 기본 내장.
+
+#### 2) 색상 토큰 체계 (Color Tokens → CSS Variables)
+`shadcn/ui`의 Semantic CSS 변수를 나이키 전용 팔레트로 표준화합니다:
+- **`--background` / Canvas (`#ffffff`):** 순백색 캔버스 배경.
+- **`--foreground` / Ink (`#111111`):** 브랜드의 유일한 메인 컬러. 텍스트, 헤드라인, 메인 액센트.
+- **`--primary` / Primary CTA (`#111111`, Text `#ffffff`):** 블랙 필 버튼 및 주요 강조.
+- **`--secondary` / Soft Cloud (`#f5f5f5`, Text `#111111`):** 제품 카드 베이스 및 보조 CTA 필.
+- **`--muted` & `--muted-foreground` (`#f5f5f5` / `#707072`):** 보조 영역 및 설명 텍스트(카테고리 서브타이틀 등).
+- **`--border` / Hairline (`#cacacb` / `#e5e5e5`):** 1px 명시적 구분선.
+- **`--destructive` / Sale Red (`#d30005`):** 세일/할인 및 위험 상태 알림에만 제한적으로 사용되는 단 하나의 유색 포인트.
+- **`--success` (`#007d48`):** 인증 완료 및 성공 상태 표시.
+
+#### 3) shadcn/ui 컴포넌트별 나이키 커스터마이징 규격
+
+| 컴포넌트 | 기본 shadcn 형태 | 나이키 디자인 시스템 적용 사양 (`design.md`) |
+|---|---|---|
+| **Button** (`src/components/ui/button.tsx`) | `rounded-md` | **`rounded-full` (Pill Geometry)**<br>• Primary: Black on White (`bg-[#111111] text-white`)<br>• Secondary: Soft Cloud (`bg-[#f5f5f5] text-[#111111]`)<br>• Tap Feedback: `active:scale-[0.96] active:opacity-70` 내장 |
+| **Card** (`src/components/ui/card.tsx`) | `rounded-xl border shadow-sm` | **`rounded-none shadow-none` (Zero Shadow, Zero Radius)**<br>• 순백색 또는 Soft Cloud(`#f5f5f5`) 베이스<br>• 1px 헤어라인 보더(`border-[#e5e5e5]`) |
+| **Badge** (`src/components/ui/badge.tsx`) | `rounded-md` | **`rounded-full` (Pill Badge)**<br>• `HOT`/`대표`: Ink 블랙 또는 Sale 레드(`#d30005`)<br>• 카테고리 칩: Soft Cloud(`#f5f5f5`) |
+| **Avatar** (`src/components/ui/avatar.tsx`) | `rounded-full` | **`rounded-full`** (원형 1:1 아바타, 1px Hairline 보더 적용) |
+| **Separator** (`src/components/ui/separator.tsx`) | 기본 divider | **1px Hairline Divider** (`bg-[#cacacb]` 또는 `bg-[#e5e5e5]`) |
+
+#### 4) 타이포그래피 계층 (Typography Scale)
+- **Display Campaign (`font-display-campaign`):** `Bebas Neue` / `Futura` 대문자(Uppercase), line-height 0.9, letter-spacing -0.02em (포트폴리오 타이틀 및 헤어로고).
+- **UI & Body (`font-sans`):** `Inter` / `Helvetica Now` 체계, letter-spacing -0.01em.
+  - Heading XL (32px / 500 / lh 1.2)
+  - Body MD (16px / 400 / lh 1.5)
+  - Button MD (16px / 500 / lh 1.5)
+  - Caption SM (12px / 500 / lh 1.5)
+
+### 4.6 시연 및 테스트용 링크 더미 데이터셋 사양 (`src/data/dummyLinks.ts`)
+
+제품 시연, 오프라인 환경 테스트 및 UI 그리드 레이아웃 검증을 위해 현실적인 실무형 링크 더미 데이터를 기본 탑재하여 사용합니다.
+
+#### 1) 표준 프로필 링크 세트 (`dummyProfileLinks`)
+- **타입:** `ProfileLink[]` (`src/types/profile.ts`)
+- **활용처:** `initialProfileData.links`, Zustand 스토어(`useMyLinkStore`), 기본 `LinkCard` 컴포넌트
+- **카테고리 구성:**
+  - **대표 & 포트폴리오 (`general`):** 공식 웹 포트폴리오, 인터랙티브 경력 기술서, 창작 후원(Buy Me a Coffee)
+  - **기술 콘텐츠 (`content`):** 기술 블로그(Velog), 주간 프론트엔드 뉴스레터, 개발 유튜브 채널
+  - **오픈소스 & 프로젝트 (`project`):** GitHub 오픈소스 레포, HyperLink 데모, AI Code Reviewer Action
+  - **네트워킹 & 연락처 (`contact`):** 1:1 커피챗(Calendly), 프로젝트 협업/채용 문의 이메일
+- **속성 지원:** 대표 강조 배지(`isFeatured`), 누적 클릭 수(`clicks`), 카테고리 태그, Lucide 아이콘 매핑
+
+#### 2) Nike 에디토리얼 커머스 링크 세트 (`dummyEditorialLinks`)
+- **타입:** `EditorialLinkItem[]` (`LinkCardItem`)
+- **활용처:** `src/app/page.tsx` 나이키 에디토리얼 쇼케이스 카탈로그 그리드
+- **속성 지원:** 
+  - 1:1 고해상도 에디토리얼 포토그래피 URL (`imageUrl`)
+  - 필터 칩 연동 태그 (`CORE`, `WRITING`, `NETWORK`)
+  - 나이키 미니멀 컬러 스와치 점 배열 (`swatches`)
+  - 프로모션 뱃지 (`JUST IN`, `HIGH DEMAND`, `LIMITED SLOTS` 등)
+  - 릴리즈 버전 및 상태 텍스트 (`priceNote`, `isSale`)
+
+### 4.7 스타일링 표준 및 shadcn/ui 기반 컴포넌트 재사용 아키텍처
+
+#### 1) 스타일링 표준 (Styling Policy)
+- **모듈 CSS(`*.module.css`) 사용 배제:** 스타일 파일의 파편화 및 네이밍 중복을 방지하기 위해 CSS Modules 방식을 배제합니다.
+- **Tailwind CSS v4 전면 단일화:** 모든 레이아웃, 반응형 브레이크포인트, 상태(hover, active, focus), 타이포그래피 및 색상 시스템을 100% **Tailwind CSS v4 유틸리티 클래스**로 통일합니다.
+- **디자인 토큰 일관성:** `globals.css`의 CSS 변수(`--background`, `--foreground`, `--border` 등)와 나이키 팔레트 토큰을 유틸리티 클래스 기반으로 직접 활용합니다.
+
+#### 2) shadcn/ui 기반 재사용 컴포넌트 계층 (Component Composition)
+페이지 레이어(`src/app/page.tsx`)에 UI 코드를 직접 인라인 하드코딩하지 않고, 책임을 분리한 재사용 가능 컴포넌트로 모듈화하여 조립합니다:
+
+| 계층 | 디렉터리 경로 | 주요 컴포넌트 | 역할 및 재사용성 |
+|---|---|---|---|
+| **UI Primitive** | `src/components/ui/` | `card`, `button`, `badge`, `avatar`, `separator`, `input` | shadcn/ui 기반 기본 원자 컴포넌트 |
+| **Domain Reusable** | `src/components/links/` | `LinkCardItem.tsx` | 단일 링크 카드 렌더링, URL 복사, 클릭 수 증가, 대표/HOT 뱃지 |
+| | | `LinkList.tsx` | 검색(`Input`), 카테고리 필터(`Button`), 카드 목록 렌더링 캡슐화 |
+| | | `ProfileBanner.tsx` | 아바타(`Avatar`), Bio, 뱃지(`Badge`), 소셜 아이콘 바, 프로필 공유 |
+| | | `StatsSummary.tsx` | 전체 링크, 대표 링크, 누적 방문 수 요약 카드(`Card`) |
+| | | `EditorialGrid.tsx` | 나이키 스타일 1:1 이미지 및 메타데이터 쇼케이스 그리드 |
+| **Page Assembler** | `src/app/page.tsx` | `LinksPage` | 위 도메인 컴포넌트들을 선언적으로 조합하여 상태 및 뷰 모드 제어 |
 
 ---
 
@@ -127,21 +211,27 @@ export interface UserProfile {
 
 ## 6. 기술 스택 (Step 1 기준)
 
-- **Framework:** Next.js 16.3.8 (App Router), React 19
+- **Framework:** Next.js 16 (App Router, Turbopack), React 19
+- **Styling:** **Pure Tailwind CSS v4 (모듈 CSS `*.module.css` 일절 배제, 100% 유틸리티 클래스 통일)**
+- **Design System & UI:** **shadcn/ui 기반 재사용 컴포넌트 아키텍처 + Nike Commerce Design System 토큰 (`design.md`)**, Lucide React (아이콘)
 - **State Management:** **Zustand 5** (`persist` 미들웨어를 활용한 LocalStorage 영속화)
-- **Styling:** Tailwind CSS v4, Lucide React (아이콘)
 - **Storage:** 브라우저 `localStorage`
 
 ---
 
 ## 7. 단계별 개발 로드맵 (Milestones)
 
-### 🚩 Step 1: 로컬스토리지 기반 프로필 페이지 (현재 진행)
+### 🚩 Step 1: 로컬스토리지 기반 프로필 페이지 & Nike 스타일 shadcn/ui 구축 (완료)
 - [x] Zustand 상태 관리 라이브러리 설치 및 `useMyLinkStore` 기반 구성
-- [x] 시연 목적에 맞춘 1단계 중심 PRD 업데이트
-- [ ] LocalStorage 데이터와 연동된 반응형 프로필 페이지 뷰 구성
-- [ ] 헤더(아바타, 소개, 소셜 아이콘) 및 링크 카드 컴포넌트 연동
-- [ ] 시연 테스트: LocalStorage 데이터 변경 시 프로필 페이지 즉시 반영 확인
+- [x] shadcn/ui 초기화 (`components.json`, CSS 변수 체계, `lib/utils.ts` 구성)
+- [x] 최신 Tailwind CSS v4 및 관련 라이브러리 최신 버전 업데이트 완료
+- [x] Nike Commerce Design System (`design.md`) 기반 shadcn/ui 컴포넌트 정책 PRD 반영
+- [x] 시연 및 카탈로그 그리드용 실무 링크 더미 데이터셋 구축 (`src/data/dummyLinks.ts`)
+- [x] 모듈 CSS 배제 및 Pure Tailwind CSS 기반 스타일링 단일화 정책 반영
+- [x] shadcn/ui 기반 도메인 재사용 컴포넌트 분리 (`LinkList`, `LinkCardItem`, `ProfileBanner`, `StatsSummary`, `EditorialGrid`)
+- [x] Nike 감성 레이아웃(Pill Geometry, Hairline 보더, Soft Cloud 베이스) 프로필 뷰 연동
+- [x] 헤더(아바타, 소개, 소셜 아이콘) 및 링크 카드 컴포넌트 연동
+- [x] LocalStorage 데이터 변경 및 클릭 통계 실시간 반영 검증 완료
 
 ---
 
