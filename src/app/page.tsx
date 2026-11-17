@@ -6,6 +6,7 @@ import {
   LayoutGrid,
   List,
   Check,
+  Plus,
 } from 'lucide-react';
 
 import { useMyLinkStore } from '@/store/useMyLinkStore';
@@ -13,6 +14,7 @@ import { dummyEditorialLinks, dummyProfileLinks } from '@/data/dummyLinks';
 import { ProfileBanner } from '@/components/links/ProfileBanner';
 import { StatsSummary } from '@/components/links/StatsSummary';
 import { LinkList } from '@/components/links/LinkList';
+import { AddLinkDialog } from '@/components/links/AddLinkDialog';
 import { EditorialGrid } from '@/components/links/EditorialGrid';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -25,7 +27,7 @@ type ViewMode = 'list' | 'editorial';
  * - shadcn/ui 기반 재사용 컴포넌트(ProfileBanner, StatsSummary, LinkList, EditorialGrid) 조립
  */
 export default function LinksPage() {
-  const { profile, incrementLinkClick, resetToInitial } = useMyLinkStore();
+  const { profile, incrementLinkClick, resetToInitial, addLink, deleteLink } = useMyLinkStore();
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -43,7 +45,14 @@ export default function LinksPage() {
   };
 
   // Profile links from store or dummy fallback
-  const links = mounted ? profile.links : dummyProfileLinks;
+  const links = mounted && profile?.links ? profile.links : dummyProfileLinks;
+
+  const handleAddLink = (newLink: Parameters<typeof addLink>[0]) => {
+    addLink(newLink);
+    if (viewMode !== 'list') {
+      setViewMode('list');
+    }
+  };
 
   const handleResetData = () => {
     resetToInitial();
@@ -85,7 +94,7 @@ export default function LinksPage() {
             </span>
           </div>
 
-          {/* View Mode Switch & Reset Action (shadcn Button & Tailwind) */}
+          {/* View Mode Switch, Add Link & Reset Action (shadcn Button & Tailwind) */}
           <div className="flex items-center gap-1.5">
             <div className="flex items-center bg-[#f5f5f5] p-0.5 rounded-full border border-[#e5e5e5]">
               <button
@@ -93,7 +102,7 @@ export default function LinksPage() {
                 onClick={() => setViewMode('list')}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
                   viewMode === 'list'
-                    ? 'bg-[#111111] text-white shadow-xs'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'text-[#707072] hover:text-[#111111]'
                 }`}
                 title="기본 링크트리 목록 뷰"
@@ -106,7 +115,7 @@ export default function LinksPage() {
                 onClick={() => setViewMode('editorial')}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
                   viewMode === 'editorial'
-                    ? 'bg-[#111111] text-white shadow-xs'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'text-[#707072] hover:text-[#111111]'
                 }`}
                 title="나이키 에디토리얼 그리드 뷰"
@@ -115,6 +124,23 @@ export default function LinksPage() {
                 <span>에디토리얼</span>
               </button>
             </div>
+
+            <AddLinkDialog
+              onAddLink={handleAddLink}
+              onShowToast={showToast}
+              trigger={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  className="rounded-full text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5]"
+                  title="새 링크 추가"
+                  aria-label="새 링크 추가"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </Button>
+              }
+            />
 
             <Button
               type="button"
@@ -141,12 +167,14 @@ export default function LinksPage() {
         {/* Telemetry & Statistics Summary (shadcn Card) */}
         <StatsSummary links={links} className="my-4" />
 
-        {/* View Mode: 1) Standard Linktree List View (shadcn Input, Button, Card) */}
+        {/* View Mode: 1) Standard Linktree List View (shadcn Input, Button, Card, Dialog) */}
         {viewMode === 'list' && (
           <LinkList
             links={links}
             onLinkClick={incrementLinkClick}
             onShowToast={showToast}
+            onAddLink={handleAddLink}
+            onDeleteLink={deleteLink}
           />
         )}
 

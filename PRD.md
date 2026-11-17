@@ -160,9 +160,10 @@
 
 | 계층 | 디렉터리 경로 | 주요 컴포넌트 | 역할 및 재사용성 |
 |---|---|---|---|
-| **UI Primitive** | `src/components/ui/` | `card`, `button`, `badge`, `avatar`, `separator`, `input` | shadcn/ui 기반 기본 원자 컴포넌트 |
-| **Domain Reusable** | `src/components/links/` | `LinkCardItem.tsx` | 단일 링크 카드 렌더링, URL 복사, 클릭 수 증가, 대표/HOT 뱃지 |
-| | | `LinkList.tsx` | 검색(`Input`), 카테고리 필터(`Button`), 카드 목록 렌더링 캡슐화 |
+| **UI Primitive** | `src/components/ui/` | `card`, `button`, `badge`, `avatar`, `separator`, `input`, `dialog` | shadcn/ui 기반 기본 원자 컴포넌트 |
+| **Domain Reusable** | `src/components/links/` | `LinkCardItem.tsx` | 단일 링크 카드 렌더링, URL 복사, 클릭 수 증가, 대표/HOT 뱃지, 링크 삭제 |
+| | | `LinkList.tsx` | 검색(`Input`), 카테고리 필터(`Button`), 카드 목록 렌더링 캡슐화, 링크 추가 다이얼로그 연계 |
+| | | `AddLinkDialog.tsx` | 모달 폼을 통한 로컬 신규 링크 추가, 실시간 카드 미리보기, 카테고리/아이콘/배지 설정 |
 | | | `ProfileBanner.tsx` | 아바타(`Avatar`), Bio, 뱃지(`Badge`), 소셜 아이콘 바, 프로필 공유 |
 | | | `StatsSummary.tsx` | 전체 링크, 대표 링크, 누적 방문 수 요약 카드(`Card`) |
 | | | `EditorialGrid.tsx` | 나이키 스타일 1:1 이미지 및 메타데이터 쇼케이스 그리드 |
@@ -228,7 +229,8 @@ export interface UserProfile {
 - [x] Nike Commerce Design System (`design.md`) 기반 shadcn/ui 컴포넌트 정책 PRD 반영
 - [x] 시연 및 카탈로그 그리드용 실무 링크 더미 데이터셋 구축 (`src/data/dummyLinks.ts`)
 - [x] 모듈 CSS 배제 및 Pure Tailwind CSS 기반 스타일링 단일화 정책 반영
-- [x] shadcn/ui 기반 도메인 재사용 컴포넌트 분리 (`LinkList`, `LinkCardItem`, `ProfileBanner`, `StatsSummary`, `EditorialGrid`)
+- [x] shadcn/ui 기반 도메인 재사용 컴포넌트 분리 (`LinkList`, `LinkCardItem`, `ProfileBanner`, `StatsSummary`, `EditorialGrid`, `AddLinkDialog`)
+- [x] 다이얼로그 모달 기반 로컬 신규 링크 추가 기능 구현 (실시간 미리보기, 유효성 검사, LocalStorage 영속화)
 - [x] Nike 감성 레이아웃(Pill Geometry, Hairline 보더, Soft Cloud 베이스) 프로필 뷰 연동
 - [x] 헤더(아바타, 소개, 소셜 아이콘) 및 링크 카드 컴포넌트 연동
 - [x] LocalStorage 데이터 변경 및 클릭 통계 실시간 반영 검증 완료

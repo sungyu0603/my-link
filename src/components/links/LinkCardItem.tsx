@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ExternalLink, Copy, Check, TrendingUp, Sparkles } from 'lucide-react';
+import { ExternalLink, Copy, Check, TrendingUp, Sparkles, Trash2 } from 'lucide-react';
 import { ProfileLink } from '@/types/profile';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,12 +12,14 @@ interface LinkCardItemProps {
   link: ProfileLink;
   onLinkClick: (id: string) => void;
   onShowToast: (message: string) => void;
+  onDeleteLink?: (id: string) => void;
 }
 
 export const LinkCardItem: React.FC<LinkCardItemProps> = ({
   link,
   onLinkClick,
   onShowToast,
+  onDeleteLink,
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -28,6 +30,15 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
     setCopied(true);
     onShowToast(`링크 주소가 복사되었습니다: ${link.title}`);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onDeleteLink) {
+      onDeleteLink(link.id);
+      onShowToast(`"${link.title}" 링크가 삭제되었습니다.`);
+    }
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -48,8 +59,8 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
       onClick={handleClick}
       className={`group relative flex flex-row items-center justify-between p-4 sm:p-5 border cursor-pointer transition-all duration-200 select-none bg-white hover:bg-[#fafafa] active:scale-[0.985] active:opacity-90 ${
         isFeatured
-          ? 'border-[#111111] shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
-          : 'border-[#e5e5e5] hover:border-[#111111]'
+          ? 'border-primary shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
+          : 'border-[#e5e5e5] hover:border-primary'
       } rounded-xl`}
     >
       {/* Featured Indicator Pill */}
@@ -71,8 +82,8 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
         <div
           className={`flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors duration-200 ${
             isFeatured
-              ? 'bg-[#111111] text-white'
-              : 'bg-[#f5f5f5] text-[#111111] group-hover:bg-[#111111] group-hover:text-white'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-[#f5f5f5] text-[#111111] group-hover:bg-primary group-hover:text-primary-foreground'
           }`}
         >
           <IconHelper name={link.iconName} className="w-5 h-5" />
@@ -106,7 +117,7 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
         </div>
       </div>
 
-      {/* Action Buttons (Copy & External Arrow) */}
+      {/* Action Buttons (Copy & External Arrow & Delete) */}
       <div className="flex items-center gap-1 flex-shrink-0 pl-1">
         <Button
           type="button"
@@ -123,6 +134,20 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
             <Copy className="w-4 h-4" />
           )}
         </Button>
+
+        {onDeleteLink && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={handleDelete}
+            className="rounded-full text-[#707072] hover:text-[#d30005] hover:bg-[#d30005]/10 transition-colors"
+            title="링크 삭제"
+            aria-label="링크 삭제"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        )}
 
         <Button
           type="button"

@@ -77,13 +77,14 @@ export const useMyLinkStore = create<MyLinkState>()(
         set((state) => {
           const newLink: ProfileLink = {
             ...linkData,
-            id: `link_${Date.now()}`,
+            id: `link_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
             clicks: 0,
           };
+          const currentLinks = Array.isArray(state.profile?.links) ? state.profile.links : [];
           return {
             profile: {
               ...state.profile,
-              links: [newLink, ...state.profile.links],
+              links: [newLink, ...currentLinks],
             },
           };
         }),
@@ -92,7 +93,7 @@ export const useMyLinkStore = create<MyLinkState>()(
         set((state) => ({
           profile: {
             ...state.profile,
-            links: state.profile.links.map((link) =>
+            links: (state.profile?.links || []).map((link) =>
               link.id === id ? { ...link, ...updated } : link
             ),
           },
@@ -102,7 +103,7 @@ export const useMyLinkStore = create<MyLinkState>()(
         set((state) => ({
           profile: {
             ...state.profile,
-            links: state.profile.links.filter((link) => link.id !== id),
+            links: (state.profile?.links || []).filter((link) => link.id !== id),
           },
         })),
 
