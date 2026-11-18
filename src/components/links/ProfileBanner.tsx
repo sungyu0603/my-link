@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Share2, Check, MapPin, Sparkles } from 'lucide-react';
+import { Share2, Check, MapPin, Sparkles, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { UserProfile } from '@/types/profile';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { IconHelper } from '@/components/profile/IconHelper';
+import { EditProfileDialog } from '@/components/profile/EditProfileDialog';
 
 interface ProfileBannerProps {
   profile: UserProfile;
@@ -114,8 +115,24 @@ export const ProfileBanner: React.FC<ProfileBannerProps> = ({
         </Badge>
       </div>
 
-      {/* Social Links Row */}
+      {/* Social Links Row & Profile Actions */}
       <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap px-1">
+        {/* Edit Profile Button */}
+        <EditProfileDialog
+          trigger={
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="rounded-full border-[#e5e5e5] hover:border-[#111111] hover:bg-[#111111] hover:text-white transition-all text-[#111111] size-8 sm:size-9 cursor-pointer"
+              title="프로필 정보 수정 (Username, 이름, 소개글)"
+              aria-label="프로필 정보 수정"
+            >
+              <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </Button>
+          }
+        />
+
         {profile.socials.map((social) => (
           <a
             key={social.id}

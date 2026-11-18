@@ -14,6 +14,13 @@ import { EditorialGrid } from '@/components/links/EditorialGrid';
 import { UnauthenticatedView } from '@/components/links/UnauthenticatedView';
 import { Separator } from '@/components/ui/separator';
 import { dummyEditorialLinks } from '@/data/dummyLinks';
+import { ProfileLink } from '@/types/profile';
+import {
+  useLinksQuery,
+  useAddLinkMutation,
+  useUpdateLinkMutation,
+  useDeleteLinkMutation,
+} from '@/hooks/useLinksQuery';
 
 type ViewMode = 'list' | 'editorial';
 
@@ -33,9 +40,6 @@ export default function LinksPage() {
     updateProfile,
     incrementLinkClick,
     resetToInitial,
-    addLink,
-    updateLink,
-    deleteLink,
     subscribeLinks,
     loadLinksFromFirestore,
     loadUserProfileFromFirestore,
@@ -101,39 +105,41 @@ export default function LinksPage() {
     subscribeLinks,
   ]);
 
-  const links = mounted && profile?.links ? profile.links : [];
+  // TanStack Query: 링크 목록 조회 및 추가/수정/삭제 Mutations
+  const { data: queryLinks } = useLinksQuery(authUser?.uid);
+  const addLinkMutation = useAddLinkMutation(authUser?.uid);
+  const updateLinkMutation = useUpdateLinkMutation(authUser?.uid);
+  const deleteLinkMutation = useDeleteLinkMutation(authUser?.uid);
 
-  const handleAddLink = async (newLink: Parameters<typeof addLink>[0]) => {
+  // TanStack Query를 단일 소스로 사용 (store와 혼합하지 않음)
+  // onSnapshot이 store를 갱신하더라도 화면은 queryLinks만 사용해 중복 방지
+  const links = queryLinks ?? [];
+
+  const handleAddLink = async (newLink: Omit<ProfileLink, 'id' | 'clicks' | 'createdAt' | 'updatedAt'>) => {
     try {
-      await addLink(newLink);
+      await addLinkMutation.mutateAsync(newLink);
       if (viewMode !== 'list') {
         setViewMode('list');
       }
-      toast.success('새 링크가 등록되었습니다.');
     } catch (error) {
-      toast.error('Firestore 저장 실패 — 보안 규칙을 확인해주세요.');
-      console.error('[handleAddLink] Firestore 오류:', error);
+      console.error('[handleAddLink] TanStack Query 오류:', error);
     }
   };
 
-  const handleUpdateLink = async (id: string, updated: Parameters<typeof updateLink>[1]) => {
+  const handleUpdateLink = async (id: string, updated: Partial<ProfileLink>) => {
     try {
-      await updateLink(id, updated);
-      toast.success('링크 정보가 수정되었습니다.');
+      await updateLinkMutation.mutateAsync({ id, updated });
     } catch (error) {
-      toast.error('Firestore 수정 실패 — 보안 규칙을 확인해주세요.');
-      console.error('[handleUpdateLink] Firestore 오류:', error);
+      console.error('[handleUpdateLink] TanStack Query 오류:', error);
       throw error;
     }
   };
 
   const handleDeleteLink = async (id: string) => {
     try {
-      await deleteLink(id);
-      toast.success('링크가 삭제되었습니다.');
+      await deleteLinkMutation.mutateAsync(id);
     } catch (error) {
-      toast.error('Firestore 삭제 실패 — 보안 규칙을 확인해주세요.');
-      console.error('[handleDeleteLink] Firestore 오류:', error);
+      console.error('[handleDeleteLink] TanStack Query 오류:', error);
       throw error;
     }
   };

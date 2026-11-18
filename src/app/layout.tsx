@@ -3,6 +3,7 @@ import { Bebas_Neue, Inter, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import { QueryProvider } from "@/providers/QueryProvider";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -33,7 +34,9 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", bebasNeue.variable, inter.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col bg-white text-[#111111]">
-        {children}
+        <QueryProvider>
+          {children}
+        </QueryProvider>
         <Toaster />
       </body>
     </html>

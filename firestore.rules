@@ -1,0 +1,82 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ──────────────────────────────────────────────
+    // 헬퍼 함수
+    // ──────────────────────────────────────────────
+
+    // 로그인 여부 확인
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // 본인 문서인지 확인
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ──────────────────────────────────────────────
+    // users 컬렉션
+    // 경로: users/{userId}
+    // ──────────────────────────────────────────────
+    match /users/{userId} {
+
+      // 읽기: 누구나 가능 (공개 프로필 페이지용)
+      allow read: if true;
+
+      // 쓰기: 로그인 + 본인 ID 일치 시만
+      // - 최초 로그인 시 syncUserProfile()이 setDoc으로 문서 생성
+      // - saveUserProfile(), saveUserProfileData()가 setDoc(merge) 으로 수정
+      allow write: if isOwner(userId);
+
+
+      // ────────────────────────────────────────────
+      // users/{userId}/links 서브컬렉션
+      // 경로: users/{userId}/links/{linkId}
+      // ────────────────────────────────────────────
+      match /links/{linkId} {
+
+        // 읽기: 누구나 가능 (공개 링크 목록/페이지용)
+        allow read: if true;
+
+        // 쓰기(생성·수정·삭제): 본인만 가능
+        // - createLink(), updateLinkDoc(), deleteLinkDoc()
+        allow write: if isOwner(userId);
+      }
+
+
+      // ────────────────────────────────────────────
+      // users/{userId}/profile 서브컬렉션
+      // 경로: users/{userId}/profile/{docId}  (현재 "info" 고정)
+      // ────────────────────────────────────────────
+      match /profile/{docId} {
+
+        // 읽기: 누구나 가능
+        allow read: if true;
+
+        // 쓰기: 본인만 가능
+        // - saveUserProfileData()가 setDoc(merge)으로 저장
+        allow write: if isOwner(userId);
+      }
+    }
+
+
+    // ──────────────────────────────────────────────
+    // users 컬렉션 전체 쿼리
+    // 경로: users (컬렉션 레벨)
+    // ──────────────────────────────────────────────
+    // checkUsernameAvailability, checkDisplayNameAvailability,
+    // findUserIdByUsername 가 where() 쿼리로 users 컬렉션 전체를 조회합니다.
+    // Firestore 보안 규칙은 "쿼리 결과에 포함될 수 있는 모든 문서에 대해
+    // read가 허용되어야 쿼리가 성공"하므로, users/{userId}의 read: true 가
+    // 이 쿼리도 커버합니다. 별도 규칙이 필요하지 않습니다.
+    //
+    // ※ 만약 users 컬렉션 전체 쿼리를 금지하고 싶다면 아래 주석을 해제하세요:
+    // match /users/{userId} {
+    //   allow list: if false;  // collection-level query 차단
+    //   allow get:  if true;   // 개별 문서는 허용
+    // }
+  }
+}

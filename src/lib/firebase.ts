@@ -3,6 +3,7 @@ import { getAnalytics, isSupported, type Analytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -26,6 +27,9 @@ const auth = getAuth(app);
 // Firebase Storage
 const storage = getStorage(app);
 
+// Firebase Cloud Functions (서울 리전)
+const functionsInstance = getFunctions(app, 'asia-northeast3');
+
 // Analytics (브라우저 환경에서만 초기화)
 let analytics: Analytics | null = null;
 if (typeof window !== "undefined") {
@@ -36,4 +40,4 @@ if (typeof window !== "undefined") {
   });
 }
 
-export { app, db, auth, storage, analytics };
+export { app, db, auth, storage, analytics, functionsInstance };

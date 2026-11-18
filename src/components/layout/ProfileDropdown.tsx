@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import {
   LogOut,
   Copy,
@@ -12,6 +13,8 @@ import {
   ChevronDown,
   Database,
   Loader2,
+  UserCog,
+  User,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -19,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useMyLinkStore } from '@/store/useMyLinkStore';
 import { logoutUser } from '@/lib/auth';
+import { EditProfileDialog } from '@/components/profile/EditProfileDialog';
 
 interface ProfileDropdownProps {
   onShowToast?: (message: string) => void;
@@ -28,6 +32,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { authUser, profile, clearUserDataOnLogout, isSyncing } = useMyLinkStore();
@@ -35,6 +40,10 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = () => {
   const userName = authUser?.displayName || profile?.name || '김선규';
   const userEmail = authUser?.email || 'user@example.com';
   const avatarUrl = authUser?.photoURL || profile?.avatarUrl;
+  const userHandle = (profile?.handle || authUser?.displayName || authUser?.email?.split('@')[0] || 'user')
+    .trim()
+    .toLowerCase()
+    .replace(/^@/, '');
 
   // 통계 계산
   const links = profile?.links || [];
@@ -70,17 +79,19 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = () => {
   }, [isOpen]);
 
   const handleCopyLink = () => {
-    const url = typeof window !== 'undefined' ? window.location.href : 'https://sunkyu.dev';
-    navigator.clipboard.writeText(url);
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://sunkyu.dev';
+    const targetUrl = `${origin}/${userHandle}`;
+    navigator.clipboard.writeText(targetUrl);
     setIsCopied(true);
-    toast.success('내 링크트리 주소가 클립보드에 복사되었습니다.');
+    toast.success(`내 개인 링크 주소가 복사되었습니다: /${userHandle}`);
     setTimeout(() => setIsCopied(false), 2000);
   };
 
   const handlePreviewOpen = () => {
     setIsOpen(false);
     if (typeof window !== 'undefined') {
-      window.open(window.location.href, '_blank');
+      const origin = window.location.origin;
+      window.open(`${origin}/${userHandle}`, '_blank');
     }
   };
 
@@ -203,6 +214,34 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = () => {
 
           {/* 3. Action Items */}
           <div className="p-1 sm:p-1.5 space-y-0.5">
+            {/* 개인별 공개 페이지 바로가기 */}
+            <Link
+              href={`/${userHandle}`}
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center justify-between px-2.5 sm:px-3 py-2 text-xs font-semibold text-[#111111] bg-[#f5f5f5]/60 hover:bg-[#f5f5f5] rounded-lg transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                <User className="w-3.5 h-3.5 text-[#111111] shrink-0" />
+                <span className="truncate">내 개인 페이지 이동</span>
+              </div>
+              <span className="text-[10px] text-[#707072] font-mono shrink-0">/{userHandle}</span>
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                setIsEditDialogOpen(true);
+              }}
+              className="w-full flex items-center justify-between px-2.5 sm:px-3 py-2 text-xs font-medium text-[#111111] rounded-lg hover:bg-[#f5f5f5] transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                <UserCog className="w-3.5 h-3.5 text-[#707072] shrink-0" />
+                <span className="truncate">프로필 정보 수정</span>
+              </div>
+              <span className="text-[10px] text-[#9e9ea0] shrink-0">편집</span>
+            </button>
+
             <button
               type="button"
               onClick={handleCopyLink}
@@ -273,6 +312,12 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = () => {
           </div>
         </div>
       )}
+
+      {/* Profile Edit Dialog */}
+      <EditProfileDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
     </div>
   );
 };

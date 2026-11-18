@@ -9,6 +9,7 @@ import {
   updateLinkDoc,
   deleteLinkDoc,
   fetchUserProfile,
+  saveUserProfileData,
 } from '../lib/firestore-links';
 import { AuthUserInfo } from '../lib/auth';
 
@@ -41,6 +42,11 @@ interface MyLinkState {
 
   // 프로필 정보 수정
   updateProfile: (data: Partial<UserProfile>) => void;
+  updateUserProfileInFirestore: (data: {
+    username: string;
+    name: string;
+    bio: string;
+  }) => Promise<boolean>;
   setThemePreset: (preset: ThemePreset) => void;
   setButtonShape: (shape: ThemeDetailConfig['buttonShape']) => void;
   setCustomColors: (bg?: string, button?: string) => void;
@@ -170,6 +176,67 @@ export const useMyLinkStore = create<MyLinkState>()(
         set((state) => ({
           profile: { ...state.profile, ...data },
         })),
+
+      /* ── 프로필 정보 업데이트 (users/{userId}/profile 동기화) ── */
+      updateUserProfileInFirestore: async (data: {
+        username: string;
+        name: string;
+        bio: string;
+      }): Promise<boolean> => {
+        const uid = get().authUser?.uid;
+        const cleanUsername = data.username.trim().toLowerCase().replace(/^@/, '');
+        const cleanName = data.name.trim();
+        const cleanBio = data.bio.trim();
+
+        const currentProfile = get().profile;
+        const currentHandle = (currentProfile.handle || '').trim().toLowerCase().replace(/^@/, '');
+        const currentName = (currentProfile.name || '').trim();
+        const currentBio = (currentProfile.bio || '').trim();
+
+        // 변경된 사항이 없으면 Firestore 업데이트 및 상태 재설정을 건너뜀
+        if (
+          cleanUsername === currentHandle &&
+          cleanName === currentName &&
+          cleanBio === currentBio
+        ) {
+          return false;
+        }
+
+        // 1) 로컬 상태에 즉시 반영
+        set((state) => ({
+          profile: {
+            ...state.profile,
+            handle: cleanUsername,
+            name: cleanName,
+            bio: cleanBio,
+          },
+          authUser: state.authUser
+            ? {
+                ...state.authUser,
+                displayName: cleanName,
+              }
+            : null,
+        }));
+
+        // 2) Firestore users/{uid} 및 users/{uid}/profile 에 영구 저장
+        if (uid) {
+          set({ isSyncing: true });
+          try {
+            await saveUserProfileData(uid, {
+              username: cleanUsername,
+              name: cleanName,
+              bio: cleanBio,
+            });
+          } catch (error) {
+            console.error('[Firestore] 프로필 저장 실패:', error);
+            throw error;
+          } finally {
+            set({ isSyncing: false });
+          }
+        }
+
+        return true;
+      },
 
       setThemePreset: (preset) =>
         set((state) => ({
