@@ -10,6 +10,7 @@ import {
   deleteLinkDoc,
   fetchUserProfile,
   saveUserProfileData,
+  incrementLinkClickCount,
 } from '../lib/firestore-links';
 import { AuthUserInfo } from '../lib/auth';
 
@@ -68,6 +69,9 @@ interface MyLinkState {
   resetToInitial: () => void;
   clearUserDataOnLogout: () => void;
 }
+
+// 단시간 내 중복 클릭 방지 맵
+const clickThrottleMap = new Map<string, number>();
 
 export const useMyLinkStore = create<MyLinkState>()(
   persist(
@@ -267,6 +271,7 @@ export const useMyLinkStore = create<MyLinkState>()(
           ...linkData,
           id: tempId,
           clicks: 0,
+          clickCount: 0,
           createdAt: now,
           updatedAt: now,
         };
@@ -430,24 +435,35 @@ export const useMyLinkStore = create<MyLinkState>()(
           },
         })),
 
-      /* ── 클릭 수 증가 ── */
+      /* ── 클릭 수 증가: users/{userId}/links/{linkId} clickCount increment(1) ── */
       incrementLinkClick: (linkId) => {
+        const now = Date.now();
+        const lastTime = clickThrottleMap.get(linkId) || 0;
+        // 1초 이내 동일 링크 중복 호출 방지 (조회수 2씩 증가 버그 방지)
+        if (now - lastTime < 1000) {
+          return;
+        }
+        clickThrottleMap.set(linkId, now);
+
         const uid = get().authUser?.uid || 'anonymous';
         const link = get().profile.links.find((l) => l.id === linkId);
-        const newClicks = (link?.clicks || 0) + 1;
+        const currentCount = link?.clickCount ?? link?.clicks ?? 0;
+        const newCount = currentCount + 1;
 
         set((state) => ({
           profile: {
             ...state.profile,
             links: state.profile.links.map((link) =>
-              link.id === linkId ? { ...link, clicks: newClicks } : link
+              link.id === linkId
+                ? { ...link, clicks: newCount, clickCount: newCount }
+                : link
             ),
           },
         }));
 
         if (!linkId.startsWith('temp_')) {
-          updateLinkDoc(uid, linkId, { clicks: newClicks }).catch((error) => {
-            console.error('[Firestore] 클릭 수 업데이트 실패:', error);
+          incrementLinkClickCount(uid, linkId).catch((error) => {
+            console.error('[Firestore] 클릭 카운트 증가 실패:', error);
           });
         }
       },

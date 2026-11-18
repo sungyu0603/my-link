@@ -15,6 +15,7 @@ import {
   Loader2,
   UserCog,
   User,
+  BarChart3,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -48,10 +49,16 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = () => {
   // 통계 계산
   const links = profile?.links || [];
   const totalLinks = links.length;
-  const totalClicks = links.reduce((sum, link) => sum + (link.clicks || 0), 0);
-  const topLink = links.length > 0
-    ? [...links].sort((a, b) => (b.clicks || 0) - (a.clicks || 0))[0]
-    : null;
+  const totalClicks = links.reduce(
+    (sum, link) => sum + (link.clickCount ?? link.clicks ?? 0),
+    0
+  );
+  const topLink =
+    links.length > 0
+      ? [...links].sort(
+          (a, b) => (b.clickCount ?? b.clicks ?? 0) - (a.clickCount ?? a.clicks ?? 0)
+        )[0]
+      : null;
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -171,9 +178,14 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = () => {
             </div>
           </div>
 
-          {/* 2. Quick Stats Summary Card */}
-          <div className="p-2.5 sm:p-3 bg-white">
-            <div className="p-2 sm:p-2.5 rounded-xl bg-[#f5f5f5] border border-[#e5e5e5]/80 flex items-center justify-around text-center">
+          {/* 2. Quick Stats Summary Card (클릭 시 /stats 이동) */}
+          <Link
+            href="/stats"
+            onClick={() => setIsOpen(false)}
+            className="block p-2.5 sm:p-3 bg-white hover:bg-[#fafafa] transition-colors cursor-pointer group"
+            title="통계 페이지로 이동"
+          >
+            <div className="p-2 sm:p-2.5 rounded-xl bg-[#f5f5f5] group-hover:bg-[#f0f0f0] border border-[#e5e5e5]/80 flex items-center justify-around text-center transition-colors">
               <div className="flex flex-col items-center">
                 <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-[#707072] font-medium mb-0.5">
                   <Link2 className="w-3 h-3 text-[#111111] shrink-0" />
@@ -204,11 +216,11 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = () => {
                   <span className="truncate">인기: <strong>{topLink.title}</strong></span>
                 </div>
                 <span className="font-semibold text-[#111111] shrink-0">
-                  {topLink.clicks}회
+                  {topLink.clickCount ?? topLink.clicks ?? 0}회
                 </span>
               </div>
             )}
-          </div>
+          </Link>
 
           <Separator className="bg-[#f0f0f0]" />
 
@@ -225,6 +237,19 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = () => {
                 <span className="truncate">내 개인 페이지 이동</span>
               </div>
               <span className="text-[10px] text-[#707072] font-mono shrink-0">/{userHandle}</span>
+            </Link>
+
+            {/* 통계 페이지 바로가기 */}
+            <Link
+              href="/stats"
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center justify-between px-2.5 sm:px-3 py-2 text-xs font-medium text-[#111111] rounded-lg hover:bg-[#f5f5f5] transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                <BarChart3 className="w-3.5 h-3.5 text-[#707072] shrink-0" />
+                <span className="truncate">링크 클릭 통계 분석</span>
+              </div>
+              <span className="text-[10px] text-[#9e9ea0] shrink-0">/stats</span>
             </Link>
 
             <button

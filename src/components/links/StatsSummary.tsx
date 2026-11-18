@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { ProfileLink } from '@/types/profile';
+import { ChevronRight } from 'lucide-react';
 
 interface StatsSummaryProps {
   links: ProfileLink[];
@@ -15,7 +17,7 @@ interface StatsSummaryProps {
  */
 export const StatsSummary: React.FC<StatsSummaryProps> = ({ links, className = '' }) => {
   const totalClicks = useMemo(() => {
-    return links.reduce((sum, item) => sum + item.clicks, 0);
+    return links.reduce((sum, item) => sum + (item.clickCount ?? item.clicks ?? 0), 0);
   }, [links]);
 
   const featuredCount = useMemo(() => {
@@ -42,14 +44,17 @@ export const StatsSummary: React.FC<StatsSummaryProps> = ({ links, className = '
         </span>
       </Card>
 
-      <Card className="bg-white border border-[#e5e5e5] rounded-xl p-2 sm:p-3 text-center shadow-none">
-        <span className="block text-[10px] sm:text-[11px] font-medium text-[#707072] mb-0.5 truncate">
-          누적 방문 수
-        </span>
-        <span className="text-sm sm:text-base md:text-lg font-bold text-[#111111] truncate block">
-          {totalClicks.toLocaleString()}회
-        </span>
-      </Card>
+      <Link href="/stats" className="block" title="상세 통계 보기">
+        <Card className="bg-white hover:bg-[#fafafa] border border-[#e5e5e5] hover:border-[#111111] rounded-xl p-2 sm:p-3 text-center shadow-none transition-all cursor-pointer group h-full">
+          <span className="flex items-center justify-center gap-0.5 text-[10px] sm:text-[11px] font-medium text-[#707072] group-hover:text-[#111111] mb-0.5 truncate">
+            <span>누적 방문 수</span>
+            <ChevronRight className="w-3 h-3 text-[#707072] group-hover:translate-x-0.5 transition-transform" />
+          </span>
+          <span className="text-sm sm:text-base md:text-lg font-bold text-[#111111] truncate block">
+            {totalClicks.toLocaleString()}회
+          </span>
+        </Card>
+      </Link>
     </div>
   );
 };

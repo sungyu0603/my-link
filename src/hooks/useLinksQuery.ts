@@ -8,8 +8,10 @@ import {
   updateLinkDoc,
   deleteLinkDoc,
   incrementFirestoreLinkClicks,
+  incrementLinkClickCount,
 } from '@/lib/firestore-links';
 import { ProfileLink } from '@/types/profile';
+import { PublicUserData } from '@/hooks/useProfileQuery';
 import { useMyLinkStore } from '@/store/useMyLinkStore';
 
 /**
@@ -124,7 +126,7 @@ export function useDeleteLinkMutation(userId: string | undefined | null) {
 }
 
 /**
- * 링크 클릭수 증가 Mutation
+ * 링크 클릭수 증가 Mutation (낙관적 업데이트 및 정확한 1회 증가)
  */
 export function useIncrementClickMutation(userId: string | undefined | null) {
   const queryClient = useQueryClient();
@@ -132,13 +134,51 @@ export function useIncrementClickMutation(userId: string | undefined | null) {
   return useMutation({
     mutationFn: async (linkId: string) => {
       if (!userId) return;
-      await incrementFirestoreLinkClicks(userId, linkId);
+      await incrementLinkClickCount(userId, linkId);
       return linkId;
+    },
+    onMutate: async (linkId: string) => {
+      // 1) publicProfile 캐시 낙관적 업데이트 (+1)
+      queryClient.setQueriesData<PublicUserData>(
+        { queryKey: ['publicProfile'] },
+        (old) => {
+          if (!old || !old.links) return old;
+          return {
+            ...old,
+            links: old.links.map((l) =>
+              l.id === linkId
+                ? {
+                    ...l,
+                    clickCount: (l.clickCount ?? l.clicks ?? 0) + 1,
+                    clicks: (l.clickCount ?? l.clicks ?? 0) + 1,
+                  }
+                : l
+            ),
+          };
+        }
+      );
+
+      // 2) links 캐시 낙관적 업데이트 (+1)
+      if (userId) {
+        queryClient.setQueryData<ProfileLink[]>(['links', userId], (old) => {
+          if (!old) return old;
+          return old.map((l) =>
+            l.id === linkId
+              ? {
+                  ...l,
+                  clickCount: (l.clickCount ?? l.clicks ?? 0) + 1,
+                  clicks: (l.clickCount ?? l.clicks ?? 0) + 1,
+                }
+              : l
+          );
+        });
+      }
     },
     onSuccess: () => {
       if (userId) {
         queryClient.invalidateQueries({ queryKey: ['links', userId] });
       }
+      queryClient.invalidateQueries({ queryKey: ['publicProfile'] });
     },
   });
 }

@@ -12,6 +12,7 @@ import {
   where,
   onSnapshot,
   serverTimestamp,
+  increment,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, functionsInstance } from './firebase';
@@ -58,14 +59,15 @@ export function formatTimestamp(value: any): string | undefined {
   return undefined;
 }
 
-/* ── READ: 특정 사용자의 모든 링크 가져오기 (경로: users/{userId}/links, createdAt 최신순) ── */
+/* ── READ: 특정 사용자의 모든 링크 가져오기 (경로: users/{userId}/links, 조회수 내림차순 정렬) ── */
 export async function fetchLinks(userId: string = 'anonymous'): Promise<ProfileLink[]> {
   const colRef = getLinksCollection(userId);
   const q = query(colRef, orderBy('createdAt', 'desc'));
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((docSnap) => {
+  const links = snapshot.docs.map((docSnap) => {
     const data = docSnap.data();
+    const count = data.clickCount ?? data.clicks ?? 0;
     return {
       id: docSnap.id,
       title: data.title ?? '',
@@ -74,15 +76,23 @@ export async function fetchLinks(userId: string = 'anonymous'): Promise<ProfileL
       iconName: data.iconName ?? 'globe',
       badge: data.badge ?? undefined,
       isFeatured: data.isFeatured ?? false,
-      clicks: data.clicks ?? 0,
+      clicks: count,
+      clickCount: count,
       category: data.category ?? 'general',
       createdAt: formatTimestamp(data.createdAt),
       updatedAt: formatTimestamp(data.updatedAt),
     } as ProfileLink;
   });
+
+  // 조회수(clickCount) 내림차순 정렬 (동일한 경우 최신 생성순)
+  return links.sort((a, b) => {
+    const clickDiff = (b.clickCount ?? b.clicks ?? 0) - (a.clickCount ?? a.clicks ?? 0);
+    if (clickDiff !== 0) return clickDiff;
+    return (b.createdAt || '').localeCompare(a.createdAt || '');
+  });
 }
 
-/* ── SUBSCRIBE: 실시간 링크 목록 구독 (경로: users/{userId}/links, createdAt 최신순) ── */
+/* ── SUBSCRIBE: 실시간 링크 목록 구독 (경로: users/{userId}/links, 조회수 내림차순 정렬) ── */
 export function subscribeLinks(
   userId: string = 'anonymous',
   onUpdate: (links: ProfileLink[]) => void,
@@ -96,6 +106,7 @@ export function subscribeLinks(
     (snapshot) => {
       const links = snapshot.docs.map((docSnap) => {
         const data = docSnap.data();
+        const count = data.clickCount ?? data.clicks ?? 0;
         return {
           id: docSnap.id,
           title: data.title ?? '',
@@ -104,13 +115,22 @@ export function subscribeLinks(
           iconName: data.iconName ?? 'globe',
           badge: data.badge ?? undefined,
           isFeatured: data.isFeatured ?? false,
-          clicks: data.clicks ?? 0,
+          clicks: count,
+          clickCount: count,
           category: data.category ?? 'general',
           createdAt: formatTimestamp(data.createdAt),
           updatedAt: formatTimestamp(data.updatedAt),
         } as ProfileLink;
       });
-      onUpdate(links);
+
+      // 조회수(clickCount) 내림차순 정렬
+      const sortedLinks = links.sort((a, b) => {
+        const clickDiff = (b.clickCount ?? b.clicks ?? 0) - (a.clickCount ?? a.clicks ?? 0);
+        if (clickDiff !== 0) return clickDiff;
+        return (b.createdAt || '').localeCompare(a.createdAt || '');
+      });
+
+      onUpdate(sortedLinks);
     },
     (error) => {
       console.error(`[Firestore] subscribeLinks (${userId}) 오류:`, error);
@@ -128,6 +148,7 @@ export async function createLink(
   const payload = removeUndefinedFields({
     ...linkData,
     clicks: 0,
+    clickCount: 0,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -138,6 +159,7 @@ export async function createLink(
     ...linkData,
     id: docRef.id,
     clicks: 0,
+    clickCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -476,18 +498,29 @@ export async function fetchUserFullProfile(userId: string): Promise<UserProfileI
   }
 }
 
-/* ── INCREMENT LINK CLICKS: Cloud Function을 통해 클릭 수 1 증가 ── */
-// Firestore 보안 규칙에서 links 쓰기는 본인만 허용됩니다.
-// 방문자(타인)의 클릭 수 업데이트는 Admin SDK를 사용하는
-// Cloud Function(incrementLinkClicks)을 통해 처리합니다.
-export async function incrementFirestoreLinkClicks(userId: string, linkId: string): Promise<void> {
+/* ── INCREMENT LINK CLICKS: users/{userId}/links/{linkId} 의 clickCount 를 increment(1)로 증가 ── */
+export async function incrementLinkClickCount(userId: string, linkId: string): Promise<void> {
+  if (!userId || !linkId) return;
   try {
-    const fn = httpsCallable<{ userId: string; linkId: string }, { success: boolean }>(
-      functionsInstance,
-      'incrementLinkClicks'
-    );
-    await fn({ userId, linkId });
+    const linkDocRef = doc(db, 'users', userId, 'links', linkId);
+    await updateDoc(linkDocRef, {
+      clickCount: increment(1),
+    });
   } catch (error) {
-    console.warn(`[Functions] incrementLinkClicks (${userId}/${linkId}) 오류:`, error);
+    console.warn(`[Firestore] incrementLinkClickCount 직접 쓰기 실패, Cloud Function으로 fallback 시도:`, error);
+    try {
+      const fn = httpsCallable<{ userId: string; linkId: string }, { success: boolean }>(
+        functionsInstance,
+        'incrementLinkClicks'
+      );
+      await fn({ userId, linkId });
+    } catch (fnErr) {
+      console.warn(`[Functions] incrementLinkClicks (${userId}/${linkId}) fallback 오류:`, fnErr);
+    }
   }
+}
+
+/* ── INCREMENT LINK CLICKS: 하위 호환 래퍼 ── */
+export async function incrementFirestoreLinkClicks(userId: string, linkId: string): Promise<void> {
+  return incrementLinkClickCount(userId, linkId);
 }

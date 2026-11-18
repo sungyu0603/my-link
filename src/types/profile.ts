@@ -14,6 +14,7 @@ export interface ProfileLink {
   badge?: string;
   isFeatured?: boolean;
   clicks: number;
+  clickCount?: number;
   category: 'general' | 'project' | 'content' | 'contact';
   createdAt?: string;
   updatedAt?: string;

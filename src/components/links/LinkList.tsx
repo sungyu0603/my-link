@@ -42,18 +42,24 @@ export const LinkList: React.FC<LinkListProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('ALL');
 
-  // Filter links based on category & search term
+  // Filter links based on category & search term, and sort by 조회수(clickCount) desc
   const filteredLinks = useMemo(() => {
-    return links.filter((link) => {
-      const matchesCategory =
-        selectedCategory === 'ALL' || link.category === selectedCategory;
-      const matchesSearch =
-        searchQuery.trim() === '' ||
-        link.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (link.subtitle && link.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (link.badge && link.badge.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesCategory && matchesSearch;
-    });
+    return links
+      .filter((link) => {
+        const matchesCategory =
+          selectedCategory === 'ALL' || link.category === selectedCategory;
+        const matchesSearch =
+          searchQuery.trim() === '' ||
+          link.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (link.subtitle && link.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (link.badge && link.badge.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesCategory && matchesSearch;
+      })
+      .sort((a, b) => {
+        const clickDiff = (b.clickCount ?? b.clicks ?? 0) - (a.clickCount ?? a.clicks ?? 0);
+        if (clickDiff !== 0) return clickDiff;
+        return (b.createdAt || '').localeCompare(a.createdAt || '');
+      });
   }, [links, selectedCategory, searchQuery]);
 
   return (

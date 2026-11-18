@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ExternalLink, Copy, Check, TrendingUp } from 'lucide-react';
+import { ExternalLink, Copy, Check, TrendingUp, Eye } from 'lucide-react';
 import { ProfileLink } from '@/types/profile';
 import { ThemeStyles } from './ThemeConfig';
 import { IconHelper } from './IconHelper';
@@ -72,10 +72,14 @@ export const LinkCard: React.FC<LinkCardProps> = ({
             </p>
           )}
 
-          {/* Click counter micro info */}
+          {/* 플랫폼명/제목 · 조회수 (작은 회색 텍스트, 텍스트 없이 아이콘과 숫자만 표시) */}
           <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-slate-500">
-            <TrendingUp className="w-3 h-3 text-slate-500" />
-            <span>{link.clicks.toLocaleString()}회 방문</span>
+            <span className="font-medium truncate max-w-[150px]">{link.title}</span>
+            <span className="text-slate-600">·</span>
+            <span className="inline-flex items-center gap-1 font-mono text-slate-400" title="조회수">
+              <Eye className="w-3.5 h-3.5 text-slate-400" />
+              <span>{(link.clickCount ?? link.clicks ?? 0).toLocaleString()}</span>
+            </span>
           </div>
         </div>
       </div>

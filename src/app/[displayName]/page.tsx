@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
@@ -8,6 +8,7 @@ import {
   Copy,
   Check,
   TrendingUp,
+  Eye,
   Share2,
   UserX,
   ArrowLeft,
@@ -25,6 +26,7 @@ import { Card } from '@/components/ui/card';
 import { IconHelper } from '@/components/profile/IconHelper';
 import {
   UserProfileInfo,
+  incrementLinkClickCount,
 } from '@/lib/firestore-links';
 import { ProfileLink } from '@/types/profile';
 import { usePublicProfileQuery } from '@/hooks/useProfileQuery';
@@ -47,9 +49,20 @@ export default function UserPublicPage() {
 
   const [isCopied, setIsCopied] = useState(false);
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
+  const lastClickedTimeRef = useRef<Record<string, number>>({});
 
   const userProfile = publicUserData?.profile;
-  const links = publicUserData?.links || [];
+  const rawLinks = publicUserData?.links || [];
+
+  // 조회수(clickCount) 내림차순 정렬
+  const links = useMemo(() => {
+    return [...rawLinks].sort((a, b) => {
+      const clickDiff = (b.clickCount ?? b.clicks ?? 0) - (a.clickCount ?? a.clicks ?? 0);
+      if (clickDiff !== 0) return clickDiff;
+      return (b.createdAt || '').localeCompare(a.createdAt || '');
+    });
+  }, [rawLinks]);
+
   const userNotFound = isError || (!isLoading && !publicUserData);
 
   // 프로필 주소 클립보드 복사
@@ -72,8 +85,17 @@ export default function UserPublicPage() {
     setTimeout(() => setCopiedLinkId(null), 2000);
   };
 
-  // 링크 클릭 핸들러 (Firestore 클릭수 1 증가)
+  // 링크 클릭 핸들러 (Firestore users/{userId}/links/{linkId} 의 clickCount increment(1) 1회만 정확히 증가)
   const handleLinkClick = (link: ProfileLink) => {
+    const now = Date.now();
+    const lastClicked = lastClickedTimeRef.current[link.id] || 0;
+    // 1초 이내 동일 링크 중복 클릭 방지 (2번 증가 방지)
+    if (now - lastClicked < 1000) {
+      return;
+    }
+    lastClickedTimeRef.current[link.id] = now;
+
+    // 단일 mutation 호출로 정확히 1회만 increment(1) 수행
     incrementClickMutation.mutate(link.id);
   };
 
@@ -264,14 +286,15 @@ export default function UserPublicPage() {
                           </p>
                         )}
 
-                        <div className="flex items-center gap-2 mt-1 text-[10px] text-[#9e9ea0]">
-                          <span className="truncate max-w-[140px] sm:max-w-[200px]">
-                            {link.url.replace(/^https?:\/\//, '')}
+                        {/* 플랫폼명/제목 · 조회수 (작은 회색 텍스트, 텍스트 없이 아이콘과 숫자만 표시) */}
+                        <div className="flex items-center gap-1.5 mt-1 text-[11px] text-[#707072]">
+                          <span className="truncate max-w-[140px] sm:max-w-[200px] font-medium">
+                            {link.title}
                           </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-0.5 shrink-0">
-                            <TrendingUp className="w-2.5 h-2.5" />
-                            {link.clicks || 0}회 클릭
+                          <span className="text-[#cacacb]">·</span>
+                          <span className="flex items-center gap-1 shrink-0 font-mono text-[#707072]" title="조회수">
+                            <Eye className="w-3 h-3 text-[#707072]" />
+                            <span>{(link.clickCount ?? link.clicks ?? 0).toLocaleString()}</span>
                           </span>
                         </div>
                       </div>

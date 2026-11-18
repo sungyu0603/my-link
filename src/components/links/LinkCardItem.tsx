@@ -9,6 +9,7 @@ import {
   Copy,
   Check,
   TrendingUp,
+  Eye,
   Sparkles,
   Trash2,
   Pencil,
@@ -549,11 +550,13 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
               </p>
             )}
 
-            {/* Micro Telemetry / Clicks Count & Updated At */}
-            <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-[#9e9ea0] flex-wrap">
-              <TrendingUp className="w-3 h-3 text-[#707072]" />
-              <span className="font-medium text-[#707072]">
-                {link.clicks.toLocaleString()}회 방문
+            {/* 플랫폼명/제목 · 조회수 (작은 회색 텍스트, 텍스트 없이 아이콘과 숫자만 표시) */}
+            <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[#707072] flex-wrap">
+              <span className="font-medium">{link.title}</span>
+              <span className="text-[#cacacb]">·</span>
+              <span className="inline-flex items-center gap-1 font-mono text-[#707072]" title="조회수">
+                <Eye className="w-3.5 h-3.5 text-[#707072]" />
+                <span>{(link.clickCount ?? link.clicks ?? 0).toLocaleString()}</span>
               </span>
               <span className="text-[#cacacb]">·</span>
               <span className="capitalize text-[#9e9ea0]">
@@ -640,7 +643,8 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
             type="button"
             variant="ghost"
             size="icon-xs"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               onLinkClick(link.id);
               window.open(link.url, '_blank', 'noopener,noreferrer');
             }}

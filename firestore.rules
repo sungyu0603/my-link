@@ -41,6 +41,9 @@ service cloud.firestore {
         // 읽기: 누구나 가능 (공개 링크 목록/페이지용)
         allow read: if true;
 
+        // 클릭 카운트(clickCount) 증가: 방문자 포함 누구나 가능
+        allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clickCount']) || isOwner(userId);
+
         // 쓰기(생성·수정·삭제): 본인만 가능
         // - createLink(), updateLinkDoc(), deleteLinkDoc()
         allow write: if isOwner(userId);
