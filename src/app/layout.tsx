@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Inter, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -31,7 +32,10 @@ export default function RootLayout({
       lang="ko"
       className={cn("h-full", "antialiased", bebasNeue.variable, inter.variable, "font-sans", geist.variable)}
     >
-      <body className="min-h-full flex flex-col bg-white text-[#111111]">{children}</body>
+      <body className="min-h-full flex flex-col bg-white text-[#111111]">
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

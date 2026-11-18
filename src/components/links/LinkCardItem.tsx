@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import {
   ExternalLink,
   Copy,
@@ -44,7 +45,7 @@ import {
 export interface LinkCardItemProps {
   link: ProfileLink;
   onLinkClick: (id: string) => void;
-  onShowToast: (message: string) => void;
+  onShowToast?: (message: string) => void;
   onUpdateLink?: (id: string, updated: Partial<ProfileLink>) => Promise<void> | void;
   onDeleteLink?: (id: string) => Promise<void> | void;
 }
@@ -107,7 +108,8 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
     e.stopPropagation();
     navigator.clipboard.writeText(link.url);
     setCopied(true);
-    onShowToast(`링크 주소가 복사되었습니다: ${link.title}`);
+    toast.success(`링크 주소가 복사되었습니다: ${link.title}`);
+    onShowToast?.(`링크 주소가 복사되었습니다: ${link.title}`);
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -153,12 +155,14 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
         category: data.category,
       });
 
-      onShowToast(`"${data.title.trim()}" 링크가 수정되었습니다.`);
+      toast.success(`"${data.title.trim()}" 링크가 수정되었습니다.`);
+      onShowToast?.(`"${data.title.trim()}" 링크가 수정되었습니다.`);
       setIsEditing(false);
       setShowAdvanced(false);
     } catch (error) {
       console.error('[LinkCardItem] 수정 실패:', error);
-      onShowToast('⚠️ 링크 수정에 실패했습니다.');
+      toast.error('링크 수정에 실패했습니다.');
+      onShowToast?.('⚠️ 링크 수정에 실패했습니다.');
     }
   };
 
@@ -174,10 +178,12 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
     if (!onDeleteLink) return;
     try {
       await onDeleteLink(link.id);
-      onShowToast(`"${link.title}" 링크가 삭제되었습니다.`);
+      toast.success(`"${link.title}" 링크가 삭제되었습니다.`);
+      onShowToast?.(`"${link.title}" 링크가 삭제되었습니다.`);
     } catch (error) {
       console.error('[LinkCardItem] 삭제 실패:', error);
-      onShowToast('⚠️ 링크 삭제에 실패했습니다.');
+      toast.error('링크 삭제에 실패했습니다.');
+      onShowToast?.('⚠️ 링크 삭제에 실패했습니다.');
     }
   };
 
@@ -577,37 +583,37 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
 
         {/* ── Action Buttons: ALWAYS VISIBLE (수정, 삭제, 복사, 새창) ── */}
         <div
-          className="flex items-center gap-1.5 sm:gap-1 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#f0f0f0] justify-end"
+          className="flex items-center gap-1 sm:gap-1.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#f0f0f0] justify-end flex-wrap"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* 수정 버튼: 항상 표시 */}
+          {/* 수정 버튼 */}
           {onUpdateLink && (
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={handleStartEdit}
-              className="h-8 px-2.5 rounded-lg border-[#e5e5e5] bg-[#f9f9f9] hover:bg-[#efefef] text-[#111111] text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+              className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border-[#e5e5e5] bg-[#f9f9f9] hover:bg-[#efefef] text-[#111111] text-[11px] sm:text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
               title="링크 수정"
               aria-label="링크 수정"
             >
-              <Pencil className="w-3.5 h-3.5 text-[#111111]" />
+              <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#111111]" />
               <span>수정</span>
             </Button>
           )}
 
-          {/* 삭제 버튼: 항상 표시 */}
+          {/* 삭제 버튼 */}
           {onDeleteLink && (
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={handleOpenDeleteModal}
-              className="h-8 px-2.5 rounded-lg border-[#ffd5d5] bg-[#fff5f5] hover:bg-[#ffe5e5] text-[#d30005] hover:text-[#b00004] text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+              className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border-[#ffd5d5] bg-[#fff5f5] hover:bg-[#ffe5e5] text-[#d30005] hover:text-[#b00004] text-[11px] sm:text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
               title="링크 삭제"
               aria-label="링크 삭제"
             >
-              <Trash2 className="w-3.5 h-3.5 text-[#d30005]" />
+              <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#d30005]" />
               <span>삭제</span>
             </Button>
           )}
@@ -616,16 +622,16 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon-xs"
             onClick={handleCopy}
-            className="rounded-lg text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5] transition-colors cursor-pointer"
+            className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5] transition-colors cursor-pointer"
             title="URL 복사"
             aria-label="URL 복사"
           >
             {copied ? (
-              <Check className="w-4 h-4 text-[#007d48]" />
+              <Check className="w-3.5 h-3.5 text-[#007d48]" />
             ) : (
-              <Copy className="w-4 h-4" />
+              <Copy className="w-3.5 h-3.5" />
             )}
           </Button>
 
@@ -633,16 +639,16 @@ export const LinkCardItem: React.FC<LinkCardItemProps> = ({
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon-xs"
             onClick={() => {
               onLinkClick(link.id);
               window.open(link.url, '_blank', 'noopener,noreferrer');
             }}
-            className="rounded-lg text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5] transition-colors cursor-pointer"
+            className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5] transition-colors cursor-pointer"
             title="새 탭에서 열기"
             aria-label="새 탭에서 열기"
           >
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="w-3.5 h-3.5" />
           </Button>
         </div>
       </Card>

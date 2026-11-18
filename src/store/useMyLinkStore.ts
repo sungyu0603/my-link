@@ -8,7 +8,9 @@ import {
   createLink,
   updateLinkDoc,
   deleteLinkDoc,
+  fetchUserProfile,
 } from '../lib/firestore-links';
+import { AuthUserInfo } from '../lib/auth';
 
 // 테마 상세 확장 인터페이스
 export interface ThemeDetailConfig {
@@ -19,6 +21,11 @@ export interface ThemeDetailConfig {
 }
 
 interface MyLinkState {
+  // 인증 사용자 정보
+  authUser: AuthUserInfo | null;
+  isAuthReady: boolean;
+  setAuthUser: (user: AuthUserInfo | null) => void;
+
   // 현재 활성화된 프로필 데이터
   profile: UserProfile;
   themeConfig: ThemeDetailConfig;
@@ -27,9 +34,10 @@ interface MyLinkState {
   isLinksLoaded: boolean;
   isSyncing: boolean;
 
-  // Firestore에서 링크 구독 및 불러오기
-  subscribeLinks: () => () => void;
-  loadLinksFromFirestore: (force?: boolean) => Promise<void>;
+  // Firestore에서 링크 구독 및 불러오기 (경로: users/{user.uid}/links)
+  subscribeLinks: (uid?: string) => () => void;
+  loadLinksFromFirestore: (uid?: string, force?: boolean) => Promise<void>;
+  loadUserProfileFromFirestore: (uid: string) => Promise<void>;
 
   // 프로필 정보 수정
   updateProfile: (data: Partial<UserProfile>) => void;
@@ -37,7 +45,7 @@ interface MyLinkState {
   setButtonShape: (shape: ThemeDetailConfig['buttonShape']) => void;
   setCustomColors: (bg?: string, button?: string) => void;
 
-  // 링크 조작 (Firestore 동기화)
+  // 링크 조작 (Firestore users/{user.uid}/links 동기화)
   addLink: (link: Omit<ProfileLink, 'id' | 'clicks' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updateLink: (id: string, updated: Partial<ProfileLink>) => Promise<void>;
   deleteLink: (id: string) => Promise<void>;
@@ -52,11 +60,14 @@ interface MyLinkState {
   // 통계 이벤트
   incrementLinkClick: (linkId: string) => void;
   resetToInitial: () => void;
+  clearUserDataOnLogout: () => void;
 }
 
 export const useMyLinkStore = create<MyLinkState>()(
   persist(
     (set, get) => ({
+      authUser: null,
+      isAuthReady: false,
       profile: initialProfileData,
       themeConfig: {
         preset: initialProfileData.theme || 'midnight',
@@ -65,10 +76,51 @@ export const useMyLinkStore = create<MyLinkState>()(
       isLinksLoaded: false,
       isSyncing: false,
 
-      /* ── Firestore 실시간 링크 목록 구독 (경로: users/anonymous/links, createdAt 내림차순) ── */
-      subscribeLinks: () => {
+      setAuthUser: (authUser) => {
+        set({ authUser, isAuthReady: true });
+        if (authUser) {
+          // 사용자 이름과 아바타를 프로필에 즉시 반영
+          set((state) => ({
+            profile: {
+              ...state.profile,
+              name: authUser.displayName || state.profile.name || '김선규',
+              avatarUrl: authUser.photoURL || state.profile.avatarUrl,
+              handle: authUser.email ? authUser.email.split('@')[0] : state.profile.handle,
+            },
+          }));
+        }
+      },
+
+      /* ── Firestore 유저 프로필 로드 (경로: users/{uid}) ── */
+      loadUserProfileFromFirestore: async (uid: string) => {
+        try {
+          const remoteProfile = await fetchUserProfile(uid);
+          if (remoteProfile) {
+            set((state) => ({
+              profile: {
+                ...state.profile,
+                ...remoteProfile,
+                // 링크는 links 하위 컬렉션에서 별도 관리되므로 보존
+                links: state.profile.links,
+              },
+            }));
+          }
+        } catch (error) {
+          console.error('[Firestore] loadUserProfileFromFirestore 오류:', error);
+        }
+      },
+
+      /* ── Firestore 실시간 링크 목록 구독 (경로: users/{user.uid}/links) ── */
+      subscribeLinks: (overrideUid?: string) => {
+        const uid = overrideUid || get().authUser?.uid;
+        if (!uid) {
+          set({ isLinksLoaded: true, isSyncing: false });
+          return () => {};
+        }
+
         set({ isSyncing: true });
         const unsubscribe = subscribeToFirestoreLinks(
+          uid,
           (links) => {
             set((state) => ({
               profile: {
@@ -80,20 +132,26 @@ export const useMyLinkStore = create<MyLinkState>()(
             }));
           },
           (error) => {
-            console.error('[Firestore] 실시간 동기화 에러:', error);
+            console.error(`[Firestore] 실시간 동기화 에러 (${uid}):`, error);
             set({ isSyncing: false, isLinksLoaded: true });
           }
         );
         return unsubscribe;
       },
 
-      /* ── Firestore에서 링크 로드 (단발성) ── */
-      loadLinksFromFirestore: async (force = false) => {
+      /* ── Firestore에서 링크 로드 (단발성) (경로: users/{user.uid}/links) ── */
+      loadLinksFromFirestore: async (overrideUid?: string, force = false) => {
+        const uid = overrideUid || get().authUser?.uid;
+        if (!uid) {
+          set({ isLinksLoaded: true, isSyncing: false });
+          return;
+        }
+
         if (get().isLinksLoaded && !force) return;
 
         try {
           set({ isSyncing: true });
-          const links = await fetchLinks();
+          const links = await fetchLinks(uid);
           set((state) => ({
             profile: {
               ...state.profile,
@@ -103,7 +161,7 @@ export const useMyLinkStore = create<MyLinkState>()(
             isSyncing: false,
           }));
         } catch (error) {
-          console.error('[Firestore] 링크 로드 실패:', error);
+          console.error(`[Firestore] 링크 로드 실패 (${uid}):`, error);
           set({ isSyncing: false, isLinksLoaded: true });
         }
       },
@@ -133,9 +191,9 @@ export const useMyLinkStore = create<MyLinkState>()(
           },
         })),
 
-      /* ── 링크 추가 → Firestore 저장 후 로컬 반영 ── */
+      /* ── 링크 추가 → users/{user.uid}/links 저장 후 로컬 반영 ── */
       addLink: async (linkData) => {
-        // 1) 낙관적 업데이트: 임시 ID로 즉시 UI 반영
+        const uid = get().authUser?.uid || 'anonymous';
         const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
         const now = new Date().toISOString();
         const optimisticLink: ProfileLink = {
@@ -156,9 +214,8 @@ export const useMyLinkStore = create<MyLinkState>()(
           };
         });
 
-        // 2) Firestore에 비동기 저장 → 실제 ID로 교체
         try {
-          const savedLink = await createLink(linkData);
+          const savedLink = await createLink(uid, linkData);
           set((state) => ({
             profile: {
               ...state.profile,
@@ -169,23 +226,22 @@ export const useMyLinkStore = create<MyLinkState>()(
           }));
         } catch (error) {
           console.error('[Firestore] 링크 저장 실패:', error);
-          // 실패 시 낙관적 업데이트 롤백
           set((state) => ({
             profile: {
               ...state.profile,
               links: state.profile.links.filter((link) => link.id !== tempId),
             },
           }));
-          throw error; // 호출부에서 에러 처리 가능
+          throw error;
         }
       },
 
-      /* ── 링크 수정 → Firestore 동기화 ── */
+      /* ── 링크 수정 → users/{user.uid}/links/{id} 동기화 ── */
       updateLink: async (id, updated) => {
+        const uid = get().authUser?.uid || 'anonymous';
         const prevLink = get().profile.links.find((l) => l.id === id);
         const now = new Date().toISOString();
 
-        // 낙관적 업데이트
         set((state) => ({
           profile: {
             ...state.profile,
@@ -195,13 +251,11 @@ export const useMyLinkStore = create<MyLinkState>()(
           },
         }));
 
-        // temp_ 프리픽스인 경우 아직 Firestore에 없으므로 스킵
         if (!id.startsWith('temp_')) {
           try {
-            await updateLinkDoc(id, updated);
+            await updateLinkDoc(uid, id, updated);
           } catch (error) {
             console.error('[Firestore] 링크 수정 실패:', error);
-            // 실패 시 롤백
             if (prevLink) {
               set((state) => ({
                 profile: {
@@ -217,12 +271,11 @@ export const useMyLinkStore = create<MyLinkState>()(
         }
       },
 
-      /* ── 링크 삭제 → Firestore 동기화 ── */
+      /* ── 링크 삭제 → users/{user.uid}/links/{id} 동기화 ── */
       deleteLink: async (id) => {
-        // 롤백용 백업
+        const uid = get().authUser?.uid || 'anonymous';
         const backup = get().profile.links.find((l) => l.id === id);
 
-        // 낙관적 업데이트
         set((state) => ({
           profile: {
             ...state.profile,
@@ -230,13 +283,11 @@ export const useMyLinkStore = create<MyLinkState>()(
           },
         }));
 
-        // Firestore 삭제
         if (!id.startsWith('temp_')) {
           try {
-            await deleteLinkDoc(id);
+            await deleteLinkDoc(uid, id);
           } catch (error) {
             console.error('[Firestore] 링크 삭제 실패:', error);
-            // 실패 시 롤백
             if (backup) {
               set((state) => ({
                 profile: {
@@ -258,8 +309,9 @@ export const useMyLinkStore = create<MyLinkState>()(
           },
         })),
 
-      /* ── 대표 링크 토글 → Firestore 동기화 ── */
+      /* ── 대표 링크 토글 ── */
       toggleLinkActive: (id) => {
+        const uid = get().authUser?.uid || 'anonymous';
         const link = get().profile.links.find((l) => l.id === id);
         const newFeatured = !link?.isFeatured;
 
@@ -273,7 +325,7 @@ export const useMyLinkStore = create<MyLinkState>()(
         }));
 
         if (!id.startsWith('temp_')) {
-          updateLinkDoc(id, { isFeatured: newFeatured }).catch((error) => {
+          updateLinkDoc(uid, id, { isFeatured: newFeatured }).catch((error) => {
             console.error('[Firestore] 대표 링크 토글 실패:', error);
           });
         }
@@ -311,8 +363,9 @@ export const useMyLinkStore = create<MyLinkState>()(
           },
         })),
 
-      /* ── 클릭 수 증가 → Firestore 동기화 ── */
+      /* ── 클릭 수 증가 ── */
       incrementLinkClick: (linkId) => {
+        const uid = get().authUser?.uid || 'anonymous';
         const link = get().profile.links.find((l) => l.id === linkId);
         const newClicks = (link?.clicks || 0) + 1;
 
@@ -326,13 +379,14 @@ export const useMyLinkStore = create<MyLinkState>()(
         }));
 
         if (!linkId.startsWith('temp_')) {
-          updateLinkDoc(linkId, { clicks: newClicks }).catch((error) => {
+          updateLinkDoc(uid, linkId, { clicks: newClicks }).catch((error) => {
             console.error('[Firestore] 클릭 수 업데이트 실패:', error);
           });
         }
       },
 
-      resetToInitial: () =>
+      resetToInitial: () => {
+        const uid = get().authUser?.uid;
         set(() => ({
           profile: initialProfileData,
           themeConfig: {
@@ -340,17 +394,28 @@ export const useMyLinkStore = create<MyLinkState>()(
             buttonShape: 'pill',
           },
           isLinksLoaded: false,
-        })),
+        }));
+        if (uid) {
+          get().loadLinksFromFirestore(uid, true);
+        }
+      },
+
+      clearUserDataOnLogout: () => {
+        set({
+          authUser: null,
+          profile: {
+            ...initialProfileData,
+            links: [],
+          },
+          isLinksLoaded: false,
+          isSyncing: false,
+        });
+      },
     }),
     {
       name: 'mylink-app-storage',
-      // Firestore가 관리하는 링크 데이터와 로딩 상태는 로컬 스토리지 캐시에서 제외
       partialize: (state) => ({
         themeConfig: state.themeConfig,
-        profile: {
-          ...state.profile,
-          links: [],
-        },
       }),
     }
   )

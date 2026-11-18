@@ -14,7 +14,7 @@ export type CategoryFilter = 'ALL' | 'general' | 'content' | 'project' | 'contac
 interface LinkListProps {
   links: ProfileLink[];
   onLinkClick: (id: string) => void;
-  onShowToast: (message: string) => void;
+  onShowToast?: (message: string) => void;
   onAddLink?: (link: Omit<ProfileLink, 'id' | 'clicks'>) => Promise<void> | void;
   onUpdateLink?: (id: string, updated: Partial<ProfileLink>) => Promise<void> | void;
   onDeleteLink?: (id: string) => Promise<void> | void;
@@ -25,9 +25,8 @@ interface LinkListProps {
 
 /**
  * shadcn/ui 기반의 링크 목록 & 탐색 재사용 컴포넌트
- * - 순수 Tailwind CSS 유틸리티 클래스 적용 (모듈 CSS 배제)
+ * - 순수 Tailwind CSS 유틸리티 클래스 적용 (모바일 반응형 최적화)
  * - 검색(Input), 카테고리 필터링(Button), 링크 카드 렌더링(LinkCardItem) 캡슐화
- * - 다이얼로그 기반 새 링크 추가(AddLinkDialog) 지원
  */
 export const LinkList: React.FC<LinkListProps> = ({
   links,
@@ -58,42 +57,23 @@ export const LinkList: React.FC<LinkListProps> = ({
   }, [links, selectedCategory, searchQuery]);
 
   return (
-    <div className={`w-full flex flex-col ${className}`}>
-      {/* ── Section Header with Title & Add Link Dialog ── */}
-      <div className="flex items-center justify-between mb-3 px-0.5">
-        <div className="flex items-center gap-2">
-          <h2 className="text-sm font-bold text-[#111111] uppercase tracking-tight">
-            Links
-          </h2>
-          <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#f5f5f5] text-[#707072] font-semibold border border-[#e5e5e5]">
-            {links.length}
-          </span>
-        </div>
-
-        {onAddLink && (
-          <AddLinkDialog
-            onAddLink={onAddLink}
-            onShowToast={onShowToast}
-          />
-        )}
-      </div>
-
-      {/* ── Search Input (shadcn Input + Tailwind) ── */}
+    <div className={`w-full ${className}`}>
+      {/* ── Search Input (shadcn Input + Lucide Icon) ── */}
       {enableSearch && (
-        <div className="relative mb-3.5">
+        <div className="relative mb-3">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#707072]" />
           <Input
             type="text"
+            placeholder="링크 이름, 설명, 태그로 검색..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="링크 제목, 키워드, 태그 검색..."
-            className="pl-9.5 pr-4 bg-white border-[#e5e5e5] focus-visible:border-[#111111]"
+            className="pl-9.5 pr-4 h-10 text-xs sm:text-sm bg-white border-[#e5e5e5] focus-visible:border-[#111111] rounded-xl"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#707072] hover:text-[#111111] bg-[#f5f5f5] rounded-full px-2 py-0.5 transition-colors cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] sm:text-xs text-[#707072] hover:text-[#111111] bg-[#f5f5f5] rounded-full px-2 py-0.5 transition-colors cursor-pointer"
             >
               초기화
             </button>
@@ -101,15 +81,15 @@ export const LinkList: React.FC<LinkListProps> = ({
         </div>
       )}
 
-      {/* ── Category Pill Filter Tabs (shadcn Buttons + Tailwind) ── */}
+      {/* ── Category Pill Filter Tabs (가로 스크롤 터치 친화적 지원) ── */}
       {enableFilter && (
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none mb-4">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3.5 scrollbar-none touch-pan-x flex-nowrap -mx-1 px-1">
           <Button
             type="button"
             variant={selectedCategory === 'ALL' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSelectedCategory('ALL')}
-            className={`rounded-full text-xs font-medium cursor-pointer transition-all ${
+            className={`rounded-full text-xs font-medium cursor-pointer transition-all shrink-0 h-8 px-3 ${
               selectedCategory === 'ALL'
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'border-[#e5e5e5] text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5]'
@@ -123,7 +103,7 @@ export const LinkList: React.FC<LinkListProps> = ({
             variant={selectedCategory === 'general' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSelectedCategory('general')}
-            className={`rounded-full text-xs font-medium cursor-pointer transition-all ${
+            className={`rounded-full text-xs font-medium cursor-pointer transition-all shrink-0 h-8 px-3 ${
               selectedCategory === 'general'
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'border-[#e5e5e5] text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5]'
@@ -137,7 +117,7 @@ export const LinkList: React.FC<LinkListProps> = ({
             variant={selectedCategory === 'content' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSelectedCategory('content')}
-            className={`rounded-full text-xs font-medium cursor-pointer transition-all ${
+            className={`rounded-full text-xs font-medium cursor-pointer transition-all shrink-0 h-8 px-3 ${
               selectedCategory === 'content'
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'border-[#e5e5e5] text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5]'
@@ -151,7 +131,7 @@ export const LinkList: React.FC<LinkListProps> = ({
             variant={selectedCategory === 'project' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSelectedCategory('project')}
-            className={`rounded-full text-xs font-medium cursor-pointer transition-all ${
+            className={`rounded-full text-xs font-medium cursor-pointer transition-all shrink-0 h-8 px-3 ${
               selectedCategory === 'project'
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'border-[#e5e5e5] text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5]'
@@ -165,7 +145,7 @@ export const LinkList: React.FC<LinkListProps> = ({
             variant={selectedCategory === 'contact' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSelectedCategory('contact')}
-            className={`rounded-full text-xs font-medium cursor-pointer transition-all ${
+            className={`rounded-full text-xs font-medium cursor-pointer transition-all shrink-0 h-8 px-3 ${
               selectedCategory === 'contact'
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'border-[#e5e5e5] text-[#707072] hover:text-[#111111] hover:bg-[#f5f5f5]'
@@ -190,7 +170,7 @@ export const LinkList: React.FC<LinkListProps> = ({
                 onAddLink={onAddLink}
                 onShowToast={onShowToast}
                 trigger={
-                  <Button className="rounded-full text-xs bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2">
+                  <Button className="rounded-full text-xs bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 cursor-pointer">
                     <Plus className="w-3.5 h-3.5 mr-1" />
                     첫 링크 추가하기
                   </Button>
@@ -204,7 +184,7 @@ export const LinkList: React.FC<LinkListProps> = ({
                   setSearchQuery('');
                   setSelectedCategory('ALL');
                 }}
-                className="rounded-full text-xs"
+                className="rounded-full text-xs cursor-pointer"
               >
                 필터 초기화
               </Button>

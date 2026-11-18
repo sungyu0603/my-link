@@ -34,6 +34,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { IconHelper } from '@/components/profile/IconHelper';
+import { toast } from 'sonner';
 
 import {
   MAX_TITLE,
@@ -53,7 +54,7 @@ export type { LinkFormValues };
 
 interface AddLinkDialogProps {
   onAddLink: (link: Omit<ProfileLink, 'id' | 'clicks'>) => Promise<void> | void;
-  onShowToast: (msg: string) => void;
+  onShowToast?: (msg: string) => void;
   trigger?: React.ReactNode;
 }
 
@@ -120,7 +121,8 @@ export const AddLinkDialog: React.FC<AddLinkDialogProps> = ({
         category: data.category,
       });
 
-      onShowToast(`"${data.title.trim()}" 링크가 저장되었습니다.`);
+      toast.success(`"${data.title.trim()}" 링크가 저장되었습니다.`);
+      onShowToast?.(`"${data.title.trim()}" 링크가 저장되었습니다.`);
       setOpen(false);
       reset(FORM_DEFAULTS);
       setShowAdvanced(false);
