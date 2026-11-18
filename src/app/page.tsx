@@ -27,7 +27,17 @@ type ViewMode = 'list' | 'editorial';
  * - shadcn/ui 기반 재사용 컴포넌트(ProfileBanner, StatsSummary, LinkList, EditorialGrid) 조립
  */
 export default function LinksPage() {
-  const { profile, incrementLinkClick, resetToInitial, addLink, deleteLink, loadLinksFromFirestore, isLinksLoaded, isSyncing } = useMyLinkStore();
+  const {
+    profile,
+    incrementLinkClick,
+    resetToInitial,
+    addLink,
+    deleteLink,
+    subscribeLinks,
+    loadLinksFromFirestore,
+    isLinksLoaded,
+    isSyncing,
+  } = useMyLinkStore();
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -37,12 +47,21 @@ export default function LinksPage() {
     setMounted(true);
   }, []);
 
-  // Firestore에서 링크 데이터 로드
+  // 페이지 로드 시 Firestore에서 링크 로드 및 실시간 구독 (경로: users/anonymous/links, createdAt 최신순 정렬)
   useEffect(() => {
-    if (mounted) {
-      loadLinksFromFirestore();
-    }
-  }, [mounted, loadLinksFromFirestore]);
+    if (!mounted) return;
+
+    // 1) 초기 로드 즉시 fetch
+    loadLinksFromFirestore(true);
+
+    // 2) 실시간 리스너 등록 (새 링크 추가 시 자동 갱신)
+    const unsubscribe = subscribeLinks();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [mounted, loadLinksFromFirestore, subscribeLinks]);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -51,12 +70,8 @@ export default function LinksPage() {
     }, 2500);
   };
 
-  // Firestore 로드 완료 시 스토어 데이터 사용, 미완료 시 더미 데이터 폴백
-  const links = mounted && isLinksLoaded && profile?.links
-    ? profile.links
-    : mounted && !isLinksLoaded
-      ? dummyProfileLinks  // 아직 로딩 중이면 더미 표시
-      : dummyProfileLinks;
+  // Firestore에서 로드된 실제 링크 데이터 (로드 완료 전에는 빈 배열)
+  const links = mounted && profile?.links ? profile.links : [];
 
   const handleAddLink = async (newLink: Parameters<typeof addLink>[0]) => {
     try {
@@ -72,7 +87,9 @@ export default function LinksPage() {
 
   const handleResetData = () => {
     resetToInitial();
-    showToast('더미 데이터가 기본 상태로 초기화되었습니다.');
+    // 초기화 후 Firestore에서 다시 최신 링크 로드
+    loadLinksFromFirestore(true);
+    showToast('데이터를 새로고침했습니다.');
   };
 
   if (!mounted) {
@@ -185,13 +202,20 @@ export default function LinksPage() {
 
         {/* View Mode: 1) Standard Linktree List View (shadcn Input, Button, Card, Dialog) */}
         {viewMode === 'list' && (
-          <LinkList
-            links={links}
-            onLinkClick={incrementLinkClick}
-            onShowToast={showToast}
-            onAddLink={handleAddLink}
-            onDeleteLink={deleteLink}
-          />
+          !isLinksLoaded ? (
+            <div className="py-16 flex flex-col items-center justify-center gap-3 bg-white rounded-xl border border-[#e5e5e5]">
+              <div className="w-5 h-5 border-2 border-[#111111] border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs text-[#707072] font-medium">Firestore에서 링크 불러오는 중...</p>
+            </div>
+          ) : (
+            <LinkList
+              links={links}
+              onLinkClick={incrementLinkClick}
+              onShowToast={showToast}
+              onAddLink={handleAddLink}
+              onDeleteLink={deleteLink}
+            />
+          )
         )}
 
         {/* View Mode: 2) Nike Editorial Grid View (shadcn Card, Badge) */}

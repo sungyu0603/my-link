@@ -7,6 +7,7 @@ import {
   deleteDoc,
   query,
   orderBy,
+  onSnapshot,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
@@ -31,7 +32,7 @@ function removeUndefinedFields<T extends Record<string, any>>(obj: T): Partial<T
   return result;
 }
 
-/* ── READ: 모든 링크 가져오기 ── */
+/* ── READ: 모든 링크 가져오기 (createdAt 최신순) ── */
 export async function fetchLinks(): Promise<ProfileLink[]> {
   const q = query(linksCollectionRef, orderBy('createdAt', 'desc'));
   const snapshot = await getDocs(q);
@@ -50,6 +51,38 @@ export async function fetchLinks(): Promise<ProfileLink[]> {
       category: data.category ?? 'general',
     } as ProfileLink;
   });
+}
+
+/* ── SUBSCRIBE: 실시간 링크 목록 구독 (경로: users/anonymous/links, createdAt 최신순) ── */
+export function subscribeLinks(
+  onUpdate: (links: ProfileLink[]) => void,
+  onError?: (error: Error) => void
+): () => void {
+  const q = query(linksCollectionRef, orderBy('createdAt', 'desc'));
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const links = snapshot.docs.map((docSnap) => {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          title: data.title ?? '',
+          subtitle: data.subtitle ?? undefined,
+          url: data.url ?? '',
+          iconName: data.iconName ?? 'globe',
+          badge: data.badge ?? undefined,
+          isFeatured: data.isFeatured ?? false,
+          clicks: data.clicks ?? 0,
+          category: data.category ?? 'general',
+        } as ProfileLink;
+      });
+      onUpdate(links);
+    },
+    (error) => {
+      console.error('[Firestore] subscribeLinks 오류:', error);
+      onError?.(error);
+    }
+  );
 }
 
 /* ── CREATE: 새 링크 추가 ── */

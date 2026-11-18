@@ -4,6 +4,7 @@ import { initialProfileData } from '../data/initialProfile';
 import { UserProfile, ProfileLink, SocialLink, ThemePreset } from '../types/profile';
 import {
   fetchLinks,
+  subscribeLinks as subscribeToFirestoreLinks,
   createLink,
   updateLinkDoc,
   deleteLinkDoc,
@@ -26,8 +27,9 @@ interface MyLinkState {
   isLinksLoaded: boolean;
   isSyncing: boolean;
 
-  // Firestore에서 링크 불러오기
-  loadLinksFromFirestore: () => Promise<void>;
+  // Firestore에서 링크 구독 및 불러오기
+  subscribeLinks: () => () => void;
+  loadLinksFromFirestore: (force?: boolean) => Promise<void>;
 
   // 프로필 정보 수정
   updateProfile: (data: Partial<UserProfile>) => void;
@@ -63,10 +65,31 @@ export const useMyLinkStore = create<MyLinkState>()(
       isLinksLoaded: false,
       isSyncing: false,
 
-      /* ── Firestore에서 링크 로드 ── */
-      loadLinksFromFirestore: async () => {
-        // 이미 로딩된 경우 중복 호출 방지
-        if (get().isLinksLoaded) return;
+      /* ── Firestore 실시간 링크 목록 구독 (경로: users/anonymous/links, createdAt 내림차순) ── */
+      subscribeLinks: () => {
+        set({ isSyncing: true });
+        const unsubscribe = subscribeToFirestoreLinks(
+          (links) => {
+            set((state) => ({
+              profile: {
+                ...state.profile,
+                links,
+              },
+              isLinksLoaded: true,
+              isSyncing: false,
+            }));
+          },
+          (error) => {
+            console.error('[Firestore] 실시간 동기화 에러:', error);
+            set({ isSyncing: false, isLinksLoaded: true });
+          }
+        );
+        return unsubscribe;
+      },
+
+      /* ── Firestore에서 링크 로드 (단발성) ── */
+      loadLinksFromFirestore: async (force = false) => {
+        if (get().isLinksLoaded && !force) return;
 
         try {
           set({ isSyncing: true });
@@ -298,6 +321,14 @@ export const useMyLinkStore = create<MyLinkState>()(
     }),
     {
       name: 'mylink-app-storage',
+      // Firestore가 관리하는 링크 데이터와 로딩 상태는 로컬 스토리지 캐시에서 제외
+      partialize: (state) => ({
+        themeConfig: state.themeConfig,
+        profile: {
+          ...state.profile,
+          links: [],
+        },
+      }),
     }
   )
 );
