@@ -2,6 +2,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { initialProfileData } from '../data/initialProfile';
 import { UserProfile, ProfileLink, SocialLink, ThemePreset } from '../types/profile';
+import {
+  fetchLinks,
+  createLink,
+  updateLinkDoc,
+  deleteLinkDoc,
+} from '../lib/firestore-links';
 
 // 테마 상세 확장 인터페이스
 export interface ThemeDetailConfig {
@@ -15,15 +21,22 @@ interface MyLinkState {
   // 현재 활성화된 프로필 데이터
   profile: UserProfile;
   themeConfig: ThemeDetailConfig;
-  
+
+  // Firestore 동기화 상태
+  isLinksLoaded: boolean;
+  isSyncing: boolean;
+
+  // Firestore에서 링크 불러오기
+  loadLinksFromFirestore: () => Promise<void>;
+
   // 프로필 정보 수정
   updateProfile: (data: Partial<UserProfile>) => void;
   setThemePreset: (preset: ThemePreset) => void;
   setButtonShape: (shape: ThemeDetailConfig['buttonShape']) => void;
   setCustomColors: (bg?: string, button?: string) => void;
 
-  // 링크 조작
-  addLink: (link: Omit<ProfileLink, 'id' | 'clicks'>) => void;
+  // 링크 조작 (Firestore 동기화)
+  addLink: (link: Omit<ProfileLink, 'id' | 'clicks'>) => Promise<void>;
   updateLink: (id: string, updated: Partial<ProfileLink>) => void;
   deleteLink: (id: string) => void;
   reorderLinks: (links: ProfileLink[]) => void;
@@ -41,11 +54,35 @@ interface MyLinkState {
 
 export const useMyLinkStore = create<MyLinkState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       profile: initialProfileData,
       themeConfig: {
         preset: initialProfileData.theme || 'midnight',
         buttonShape: 'pill',
+      },
+      isLinksLoaded: false,
+      isSyncing: false,
+
+      /* ── Firestore에서 링크 로드 ── */
+      loadLinksFromFirestore: async () => {
+        // 이미 로딩된 경우 중복 호출 방지
+        if (get().isLinksLoaded) return;
+
+        try {
+          set({ isSyncing: true });
+          const links = await fetchLinks();
+          set((state) => ({
+            profile: {
+              ...state.profile,
+              links,
+            },
+            isLinksLoaded: true,
+            isSyncing: false,
+          }));
+        } catch (error) {
+          console.error('[Firestore] 링크 로드 실패:', error);
+          set({ isSyncing: false, isLinksLoaded: true });
+        }
       },
 
       updateProfile: (data) =>
@@ -73,23 +110,53 @@ export const useMyLinkStore = create<MyLinkState>()(
           },
         })),
 
-      addLink: (linkData) =>
+      /* ── 링크 추가 → Firestore 저장 후 로컬 반영 ── */
+      addLink: async (linkData) => {
+        // 1) 낙관적 업데이트: 임시 ID로 즉시 UI 반영
+        const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const optimisticLink: ProfileLink = {
+          ...linkData,
+          id: tempId,
+          clicks: 0,
+        };
+
         set((state) => {
-          const newLink: ProfileLink = {
-            ...linkData,
-            id: `link_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-            clicks: 0,
-          };
           const currentLinks = Array.isArray(state.profile?.links) ? state.profile.links : [];
           return {
             profile: {
               ...state.profile,
-              links: [newLink, ...currentLinks],
+              links: [optimisticLink, ...currentLinks],
             },
           };
-        }),
+        });
 
-      updateLink: (id, updated) =>
+        // 2) Firestore에 비동기 저장 → 실제 ID로 교체
+        try {
+          const savedLink = await createLink(linkData);
+          set((state) => ({
+            profile: {
+              ...state.profile,
+              links: state.profile.links.map((link) =>
+                link.id === tempId ? savedLink : link
+              ),
+            },
+          }));
+        } catch (error) {
+          console.error('[Firestore] 링크 저장 실패:', error);
+          // 실패 시 낙관적 업데이트 롤백
+          set((state) => ({
+            profile: {
+              ...state.profile,
+              links: state.profile.links.filter((link) => link.id !== tempId),
+            },
+          }));
+          throw error; // 호출부에서 에러 처리 가능
+        }
+      },
+
+      /* ── 링크 수정 → Firestore 동기화 ── */
+      updateLink: (id, updated) => {
+        // 낙관적 업데이트
         set((state) => ({
           profile: {
             ...state.profile,
@@ -97,15 +164,45 @@ export const useMyLinkStore = create<MyLinkState>()(
               link.id === id ? { ...link, ...updated } : link
             ),
           },
-        })),
+        }));
 
-      deleteLink: (id) =>
+        // temp_ 프리픽스인 경우 아직 Firestore에 없으므로 스킵
+        if (!id.startsWith('temp_')) {
+          updateLinkDoc(id, updated).catch((error) => {
+            console.error('[Firestore] 링크 수정 실패:', error);
+          });
+        }
+      },
+
+      /* ── 링크 삭제 → Firestore 동기화 ── */
+      deleteLink: (id) => {
+        // 롤백용 백업
+        const backup = get().profile.links.find((l) => l.id === id);
+
+        // 낙관적 업데이트
         set((state) => ({
           profile: {
             ...state.profile,
             links: (state.profile?.links || []).filter((link) => link.id !== id),
           },
-        })),
+        }));
+
+        // Firestore 삭제
+        if (!id.startsWith('temp_')) {
+          deleteLinkDoc(id).catch((error) => {
+            console.error('[Firestore] 링크 삭제 실패:', error);
+            // 실패 시 롤백
+            if (backup) {
+              set((state) => ({
+                profile: {
+                  ...state.profile,
+                  links: [...state.profile.links, backup],
+                },
+              }));
+            }
+          });
+        }
+      },
 
       reorderLinks: (newLinks) =>
         set((state) => ({
@@ -115,15 +212,26 @@ export const useMyLinkStore = create<MyLinkState>()(
           },
         })),
 
-      toggleLinkActive: (id) =>
+      /* ── 대표 링크 토글 → Firestore 동기화 ── */
+      toggleLinkActive: (id) => {
+        const link = get().profile.links.find((l) => l.id === id);
+        const newFeatured = !link?.isFeatured;
+
         set((state) => ({
           profile: {
             ...state.profile,
             links: state.profile.links.map((link) =>
-              link.id === id ? { ...link, isFeatured: !link.isFeatured } : link
+              link.id === id ? { ...link, isFeatured: newFeatured } : link
             ),
           },
-        })),
+        }));
+
+        if (!id.startsWith('temp_')) {
+          updateLinkDoc(id, { isFeatured: newFeatured }).catch((error) => {
+            console.error('[Firestore] 대표 링크 토글 실패:', error);
+          });
+        }
+      },
 
       addSocial: (socialData) =>
         set((state) => {
@@ -157,15 +265,26 @@ export const useMyLinkStore = create<MyLinkState>()(
           },
         })),
 
-      incrementLinkClick: (linkId) =>
+      /* ── 클릭 수 증가 → Firestore 동기화 ── */
+      incrementLinkClick: (linkId) => {
+        const link = get().profile.links.find((l) => l.id === linkId);
+        const newClicks = (link?.clicks || 0) + 1;
+
         set((state) => ({
           profile: {
             ...state.profile,
             links: state.profile.links.map((link) =>
-              link.id === linkId ? { ...link, clicks: (link.clicks || 0) + 1 } : link
+              link.id === linkId ? { ...link, clicks: newClicks } : link
             ),
           },
-        })),
+        }));
+
+        if (!linkId.startsWith('temp_')) {
+          updateLinkDoc(linkId, { clicks: newClicks }).catch((error) => {
+            console.error('[Firestore] 클릭 수 업데이트 실패:', error);
+          });
+        }
+      },
 
       resetToInitial: () =>
         set(() => ({
@@ -174,6 +293,7 @@ export const useMyLinkStore = create<MyLinkState>()(
             preset: initialProfileData.theme || 'midnight',
             buttonShape: 'pill',
           },
+          isLinksLoaded: false,
         })),
     }),
     {

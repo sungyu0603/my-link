@@ -99,7 +99,7 @@ type LinkFormValues = z.infer<typeof linkFormSchema>;
 
 /* ── Constants ── */
 interface AddLinkDialogProps {
-  onAddLink: (link: Omit<ProfileLink, 'id' | 'clicks'>) => void;
+  onAddLink: (link: Omit<ProfileLink, 'id' | 'clicks'>) => Promise<void> | void;
   onShowToast: (msg: string) => void;
   trigger?: React.ReactNode;
 }
@@ -173,25 +173,29 @@ export const AddLinkDialog: React.FC<AddLinkDialogProps> = ({
   };
 
   /* ── submit (Zod 검증 통과 후) ── */
-  const onValid = (data: LinkFormValues) => {
+  const onValid = async (data: LinkFormValues) => {
     let finalUrl = data.url.trim();
     if (!/^https?:\/\//i.test(finalUrl) && !finalUrl.startsWith('mailto:'))
       finalUrl = `https://${finalUrl}`;
 
-    onAddLink({
-      title: data.title.trim(),
-      subtitle: data.subtitle.trim() || undefined,
-      url: finalUrl,
-      iconName: data.iconName,
-      badge: data.badge.trim() || undefined,
-      isFeatured: data.isFeatured,
-      category: data.category,
-    });
+    try {
+      await onAddLink({
+        title: data.title.trim(),
+        subtitle: data.subtitle.trim() || undefined,
+        url: finalUrl,
+        iconName: data.iconName,
+        badge: data.badge.trim() || undefined,
+        isFeatured: data.isFeatured,
+        category: data.category,
+      });
 
-    onShowToast(`"${data.title.trim()}" 링크가 저장되었습니다.`);
-    setOpen(false);
-    reset(FORM_DEFAULTS);
-    setShowAdvanced(false);
+      onShowToast(`"${data.title.trim()}" 링크가 저장되었습니다.`);
+      setOpen(false);
+      reset(FORM_DEFAULTS);
+      setShowAdvanced(false);
+    } catch {
+      // 상위 에러 처리
+    }
   };
 
   /* 저장 버튼은 form 외부에 있으므로 programmatic submit */

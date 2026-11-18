@@ -15,7 +15,7 @@ interface LinkListProps {
   links: ProfileLink[];
   onLinkClick: (id: string) => void;
   onShowToast: (message: string) => void;
-  onAddLink?: (link: Omit<ProfileLink, 'id' | 'clicks'>) => void;
+  onAddLink?: (link: Omit<ProfileLink, 'id' | 'clicks'>) => Promise<void> | void;
   onDeleteLink?: (id: string) => void;
   enableSearch?: boolean;
   enableFilter?: boolean;

@@ -27,7 +27,7 @@ type ViewMode = 'list' | 'editorial';
  * - shadcn/ui 기반 재사용 컴포넌트(ProfileBanner, StatsSummary, LinkList, EditorialGrid) 조립
  */
 export default function LinksPage() {
-  const { profile, incrementLinkClick, resetToInitial, addLink, deleteLink } = useMyLinkStore();
+  const { profile, incrementLinkClick, resetToInitial, addLink, deleteLink, loadLinksFromFirestore, isLinksLoaded, isSyncing } = useMyLinkStore();
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -37,6 +37,13 @@ export default function LinksPage() {
     setMounted(true);
   }, []);
 
+  // Firestore에서 링크 데이터 로드
+  useEffect(() => {
+    if (mounted) {
+      loadLinksFromFirestore();
+    }
+  }, [mounted, loadLinksFromFirestore]);
+
   const showToast = (message: string) => {
     setToastMessage(message);
     setTimeout(() => {
@@ -44,13 +51,22 @@ export default function LinksPage() {
     }, 2500);
   };
 
-  // Profile links from store or dummy fallback
-  const links = mounted && profile?.links ? profile.links : dummyProfileLinks;
+  // Firestore 로드 완료 시 스토어 데이터 사용, 미완료 시 더미 데이터 폴백
+  const links = mounted && isLinksLoaded && profile?.links
+    ? profile.links
+    : mounted && !isLinksLoaded
+      ? dummyProfileLinks  // 아직 로딩 중이면 더미 표시
+      : dummyProfileLinks;
 
-  const handleAddLink = (newLink: Parameters<typeof addLink>[0]) => {
-    addLink(newLink);
-    if (viewMode !== 'list') {
-      setViewMode('list');
+  const handleAddLink = async (newLink: Parameters<typeof addLink>[0]) => {
+    try {
+      await addLink(newLink);
+      if (viewMode !== 'list') {
+        setViewMode('list');
+      }
+    } catch (error) {
+      showToast('⚠️ Firestore 저장 실패 — 보안 규칙을 확인해주세요.');
+      console.error('[handleAddLink] Firestore 오류:', error);
     }
   };
 
@@ -188,7 +204,7 @@ export default function LinksPage() {
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="font-semibold text-[#111111]">마이링크 (MyLink)</span>
             <span>·</span>
-            <span>Step 1 로컬스토리지 기반 프로필</span>
+            <span>Firestore 기반 링크 관리</span>
           </div>
           <p className="text-[11px] text-[#9e9ea0]">
             Next.js 16 · React 19 · shadcn/ui · Zustand 5 · Pure Tailwind CSS v4
