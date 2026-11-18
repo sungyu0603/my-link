@@ -32,6 +32,7 @@ export default function LinksPage() {
     incrementLinkClick,
     resetToInitial,
     addLink,
+    updateLink,
     deleteLink,
     subscribeLinks,
     loadLinksFromFirestore,
@@ -82,6 +83,26 @@ export default function LinksPage() {
     } catch (error) {
       showToast('⚠️ Firestore 저장 실패 — 보안 규칙을 확인해주세요.');
       console.error('[handleAddLink] Firestore 오류:', error);
+    }
+  };
+
+  const handleUpdateLink = async (id: string, updated: Parameters<typeof updateLink>[1]) => {
+    try {
+      await updateLink(id, updated);
+    } catch (error) {
+      showToast('⚠️ Firestore 수정 실패 — 보안 규칙을 확인해주세요.');
+      console.error('[handleUpdateLink] Firestore 오류:', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteLink = async (id: string) => {
+    try {
+      await deleteLink(id);
+    } catch (error) {
+      showToast('⚠️ Firestore 삭제 실패 — 보안 규칙을 확인해주세요.');
+      console.error('[handleDeleteLink] Firestore 오류:', error);
+      throw error;
     }
   };
 
@@ -213,7 +234,8 @@ export default function LinksPage() {
               onLinkClick={incrementLinkClick}
               onShowToast={showToast}
               onAddLink={handleAddLink}
-              onDeleteLink={deleteLink}
+              onUpdateLink={handleUpdateLink}
+              onDeleteLink={handleDeleteLink}
             />
           )
         )}

@@ -16,7 +16,8 @@ interface LinkListProps {
   onLinkClick: (id: string) => void;
   onShowToast: (message: string) => void;
   onAddLink?: (link: Omit<ProfileLink, 'id' | 'clicks'>) => Promise<void> | void;
-  onDeleteLink?: (id: string) => void;
+  onUpdateLink?: (id: string, updated: Partial<ProfileLink>) => Promise<void> | void;
+  onDeleteLink?: (id: string) => Promise<void> | void;
   enableSearch?: boolean;
   enableFilter?: boolean;
   className?: string;
@@ -33,6 +34,7 @@ export const LinkList: React.FC<LinkListProps> = ({
   onLinkClick,
   onShowToast,
   onAddLink,
+  onUpdateLink,
   onDeleteLink,
   enableSearch = true,
   enableFilter = true,
@@ -215,6 +217,7 @@ export const LinkList: React.FC<LinkListProps> = ({
               link={link}
               onLinkClick={onLinkClick}
               onShowToast={onShowToast}
+              onUpdateLink={onUpdateLink}
               onDeleteLink={onDeleteLink}
             />
           ))

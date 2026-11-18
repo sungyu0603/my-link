@@ -38,9 +38,9 @@ interface MyLinkState {
   setCustomColors: (bg?: string, button?: string) => void;
 
   // 링크 조작 (Firestore 동기화)
-  addLink: (link: Omit<ProfileLink, 'id' | 'clicks'>) => Promise<void>;
-  updateLink: (id: string, updated: Partial<ProfileLink>) => void;
-  deleteLink: (id: string) => void;
+  addLink: (link: Omit<ProfileLink, 'id' | 'clicks' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateLink: (id: string, updated: Partial<ProfileLink>) => Promise<void>;
+  deleteLink: (id: string) => Promise<void>;
   reorderLinks: (links: ProfileLink[]) => void;
   toggleLinkActive: (id: string) => void;
 
@@ -137,10 +137,13 @@ export const useMyLinkStore = create<MyLinkState>()(
       addLink: async (linkData) => {
         // 1) 낙관적 업데이트: 임시 ID로 즉시 UI 반영
         const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const now = new Date().toISOString();
         const optimisticLink: ProfileLink = {
           ...linkData,
           id: tempId,
           clicks: 0,
+          createdAt: now,
+          updatedAt: now,
         };
 
         set((state) => {
@@ -178,27 +181,44 @@ export const useMyLinkStore = create<MyLinkState>()(
       },
 
       /* ── 링크 수정 → Firestore 동기화 ── */
-      updateLink: (id, updated) => {
+      updateLink: async (id, updated) => {
+        const prevLink = get().profile.links.find((l) => l.id === id);
+        const now = new Date().toISOString();
+
         // 낙관적 업데이트
         set((state) => ({
           profile: {
             ...state.profile,
             links: (state.profile?.links || []).map((link) =>
-              link.id === id ? { ...link, ...updated } : link
+              link.id === id ? { ...link, ...updated, updatedAt: now } : link
             ),
           },
         }));
 
         // temp_ 프리픽스인 경우 아직 Firestore에 없으므로 스킵
         if (!id.startsWith('temp_')) {
-          updateLinkDoc(id, updated).catch((error) => {
+          try {
+            await updateLinkDoc(id, updated);
+          } catch (error) {
             console.error('[Firestore] 링크 수정 실패:', error);
-          });
+            // 실패 시 롤백
+            if (prevLink) {
+              set((state) => ({
+                profile: {
+                  ...state.profile,
+                  links: (state.profile?.links || []).map((link) =>
+                    link.id === id ? prevLink : link
+                  ),
+                },
+              }));
+            }
+            throw error;
+          }
         }
       },
 
       /* ── 링크 삭제 → Firestore 동기화 ── */
-      deleteLink: (id) => {
+      deleteLink: async (id) => {
         // 롤백용 백업
         const backup = get().profile.links.find((l) => l.id === id);
 
@@ -212,7 +232,9 @@ export const useMyLinkStore = create<MyLinkState>()(
 
         // Firestore 삭제
         if (!id.startsWith('temp_')) {
-          deleteLinkDoc(id).catch((error) => {
+          try {
+            await deleteLinkDoc(id);
+          } catch (error) {
             console.error('[Firestore] 링크 삭제 실패:', error);
             // 실패 시 롤백
             if (backup) {
@@ -223,7 +245,8 @@ export const useMyLinkStore = create<MyLinkState>()(
                 },
               }));
             }
-          });
+            throw error;
+          }
         }
       },
 

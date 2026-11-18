@@ -32,6 +32,26 @@ function removeUndefinedFields<T extends Record<string, any>>(obj: T): Partial<T
   return result;
 }
 
+/**
+ * Firestore Timestamp 또는 Date 객체를 ISO 문자열로 안전하게 변환
+ */
+export function formatTimestamp(value: any): string | undefined {
+  if (!value) return undefined;
+  if (typeof value.toDate === 'function') {
+    return value.toDate().toISOString();
+  }
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return new Date(value).toISOString();
+  }
+  return undefined;
+}
+
 /* ── READ: 모든 링크 가져오기 (createdAt 최신순) ── */
 export async function fetchLinks(): Promise<ProfileLink[]> {
   const q = query(linksCollectionRef, orderBy('createdAt', 'desc'));
@@ -49,6 +69,8 @@ export async function fetchLinks(): Promise<ProfileLink[]> {
       isFeatured: data.isFeatured ?? false,
       clicks: data.clicks ?? 0,
       category: data.category ?? 'general',
+      createdAt: formatTimestamp(data.createdAt),
+      updatedAt: formatTimestamp(data.updatedAt),
     } as ProfileLink;
   });
 }
@@ -74,6 +96,8 @@ export function subscribeLinks(
           isFeatured: data.isFeatured ?? false,
           clicks: data.clicks ?? 0,
           category: data.category ?? 'general',
+          createdAt: formatTimestamp(data.createdAt),
+          updatedAt: formatTimestamp(data.updatedAt),
         } as ProfileLink;
       });
       onUpdate(links);
@@ -87,12 +111,13 @@ export function subscribeLinks(
 
 /* ── CREATE: 새 링크 추가 ── */
 export async function createLink(
-  linkData: Omit<ProfileLink, 'id' | 'clicks'>
+  linkData: Omit<ProfileLink, 'id' | 'clicks' | 'createdAt' | 'updatedAt'>
 ): Promise<ProfileLink> {
   const payload = removeUndefinedFields({
     ...linkData,
     clicks: 0,
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 
   const docRef = await addDoc(linksCollectionRef, payload);
@@ -101,6 +126,8 @@ export async function createLink(
     ...linkData,
     id: docRef.id,
     clicks: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 }
 

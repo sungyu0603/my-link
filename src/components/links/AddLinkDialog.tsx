@@ -35,94 +35,27 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { IconHelper } from '@/components/profile/IconHelper';
 
-/* ─────────────────────────────────────────────
- *  Zod Schema — 모든 필드 required (input === output)
- *  RHF defaultValues 로 초기값을 주입합니다.
- * ───────────────────────────────────────────── */
-const MAX_TITLE = 50;
-const MAX_URL = 500;
-const MAX_SUBTITLE = 100;
-const MAX_BADGE = 10;
+import {
+  MAX_TITLE,
+  MAX_URL,
+  MAX_SUBTITLE,
+  MAX_BADGE,
+  linkFormSchema,
+  LinkFormValues,
+  ICON_OPTIONS,
+  CATEGORY_OPTIONS,
+  BADGE_PRESETS,
+  normalizeUrl,
+} from '@/lib/linkValidation';
 
-export const linkFormSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, '링크 이름을 입력해주세요.')
-    .min(2, '링크 이름은 최소 2자 이상이어야 합니다.')
-    .max(MAX_TITLE, `링크 이름은 최대 ${MAX_TITLE}자 이하로 입력해주세요.`),
+export { linkFormSchema };
+export type { LinkFormValues };
 
-  url: z
-    .string()
-    .trim()
-    .min(1, '링크 주소(URL)를 입력해주세요.')
-    .max(MAX_URL, `URL은 최대 ${MAX_URL}자 이하이어야 합니다.`)
-    .refine((v) => !/\s/.test(v), {
-      message: 'URL에 공백(스페이스)이 포함될 수 없습니다.',
-    })
-    .refine(
-      (v) => {
-        if (v.startsWith('mailto:')) {
-          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.replace('mailto:', ''));
-        }
-        let n = v;
-        if (!/^https?:\/\//i.test(n)) n = `https://${n}`;
-        try {
-          const p = new URL(n);
-          if (!['http:', 'https:'].includes(p.protocol)) return false;
-          const h = p.hostname;
-          return h === 'localhost' || h === '127.0.0.1' ||
-            (h.includes('.') && !h.startsWith('.') && !h.endsWith('.'));
-        } catch {
-          return false;
-        }
-      },
-      { message: '올바른 웹 주소(예: velog.io/@user, https://example.com)를 입력해주세요.' },
-    ),
-
-  subtitle: z
-    .string()
-    .max(MAX_SUBTITLE, `설명은 최대 ${MAX_SUBTITLE}자 이하이어야 합니다.`),
-
-  category: z.enum(['general', 'content', 'project', 'contact']),
-
-  iconName: z.string(),
-
-  badge: z
-    .string()
-    .max(MAX_BADGE, `배지는 최대 ${MAX_BADGE}자 이하이어야 합니다.`),
-
-  isFeatured: z.boolean(),
-});
-
-type LinkFormValues = z.infer<typeof linkFormSchema>;
-
-/* ── Constants ── */
 interface AddLinkDialogProps {
   onAddLink: (link: Omit<ProfileLink, 'id' | 'clicks'>) => Promise<void> | void;
   onShowToast: (msg: string) => void;
   trigger?: React.ReactNode;
 }
-
-const ICON_OPTIONS = [
-  { id: 'globe', label: '웹사이트', icon: Globe },
-  { id: 'bookopen', label: '블로그', icon: BookOpen },
-  { id: 'sparkles', label: '스파클', icon: Sparkles },
-  { id: 'github', label: 'GitHub', icon: LinkIcon },
-  { id: 'coffee', label: '후원', icon: Coffee },
-  { id: 'mail', label: '이메일', icon: Mail },
-  { id: 'messagesquare', label: '메시지', icon: MessageSquare },
-  { id: 'link', label: '기본 링크', icon: LinkIcon },
-] as const;
-
-const CATEGORY_OPTIONS: { id: ProfileLink['category']; label: string }[] = [
-  { id: 'general', label: '포트폴리오' },
-  { id: 'content', label: '콘텐츠 & 글' },
-  { id: 'project', label: '오픈소스/프로젝트' },
-  { id: 'contact', label: '네트워킹 & 연락처' },
-];
-
-const BADGE_PRESETS = ['대표', 'HOT', 'NEW', '추천', 'BEST'] as const;
 
 const FORM_DEFAULTS: LinkFormValues = {
   title: '',
@@ -174,9 +107,7 @@ export const AddLinkDialog: React.FC<AddLinkDialogProps> = ({
 
   /* ── submit (Zod 검증 통과 후) ── */
   const onValid = async (data: LinkFormValues) => {
-    let finalUrl = data.url.trim();
-    if (!/^https?:\/\//i.test(finalUrl) && !finalUrl.startsWith('mailto:'))
-      finalUrl = `https://${finalUrl}`;
+    const finalUrl = normalizeUrl(data.url);
 
     try {
       await onAddLink({

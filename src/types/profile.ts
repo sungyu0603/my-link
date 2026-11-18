@@ -15,6 +15,8 @@ export interface ProfileLink {
   isFeatured?: boolean;
   clicks: number;
   category: 'general' | 'project' | 'content' | 'contact';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProjectItem {
