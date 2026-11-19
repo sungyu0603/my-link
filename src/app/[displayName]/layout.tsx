@@ -6,14 +6,12 @@ export async function generateMetadata({
   params: Promise<{ displayName: string }> | { displayName: string };
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const rawParam = resolvedParams?.displayName || 'sungyu626543';
+  const rawParam = resolvedParams?.displayName || '';
   const cleanName = decodeURIComponent(rawParam).trim().replace(/^@/, '');
-  const handle = cleanName || 'sungyu626543';
+  const handle = cleanName || '마이링크';
 
   const title = `@${handle} | 마이링크`;
   const description = `${handle}님의 마이링크 프로필 — 포트폴리오, 소셜 채널, 최신 작업물을 한 페이지에서 확인하세요.`;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://my-link-mu-lilac.vercel.app';
-  const profileUrl = `${siteUrl}/${cleanName}`;
 
   return {
     title,
@@ -23,10 +21,11 @@ export async function generateMetadata({
       title,
       description,
       type: 'profile',
-      url: profileUrl,
+      // metadataBase 기반 상대경로 — Vercel이 자동으로 절대 URL로 변환
+      url: `/${cleanName}`,
       images: [
         {
-          url: `${profileUrl}/opengraph-image`,
+          url: `/${cleanName}/opengraph-image`,
           width: 1200,
           height: 630,
           alt: `${handle}님의 마이링크 프로필`,
@@ -37,10 +36,10 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title,
       description,
-      images: [`${profileUrl}/opengraph-image`],
+      images: [`/${cleanName}/opengraph-image`],
     },
     alternates: {
-      canonical: profileUrl,
+      canonical: `/${cleanName}`,
     },
   };
 }
