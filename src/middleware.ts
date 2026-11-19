@@ -17,6 +17,19 @@ export function middleware(request: NextRequest) {
     });
   }
 
+  // 구글 서치콘솔 확인 파일 요청 가로채기
+  if (pathname.startsWith('/google') && pathname.endsWith('.html')) {
+    const filename = pathname.replace(/^\//, '');
+    return new NextResponse(`google-site-verification: ${filename}`, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'X-Robots-Tag': 'all, index, follow',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    });
+  }
+
   return NextResponse.next();
 }
 

@@ -70,8 +70,9 @@ export const metadata: Metadata = {
     },
   },
 
-  // 사이트 소유 확인 (네이버 서치어드바이저)
+  // 사이트 소유 확인 (네이버 & 구글 서치콘솔)
   verification: {
+    google: '752cccad500ebd2b',
     other: {
       'naver-site-verification': '81efee4a46e1ce20bd1ecdf5cfa69700',
     },
