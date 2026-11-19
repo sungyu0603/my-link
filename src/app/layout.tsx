@@ -70,6 +70,13 @@ export const metadata: Metadata = {
     },
   },
 
+  // 사이트 소유 확인 (네이버 서치어드바이저)
+  verification: {
+    other: {
+      'naver-site-verification': '81efee4a46e1ce20bd1ecdf5cfa69700',
+    },
+  },
+
   // 아이콘
   icons: {
     icon: '/favicon.ico',
