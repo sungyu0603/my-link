@@ -1,0 +1,12 @@
+{
+  "headers": [
+    {
+      "source": "/naver81efee4a46e1ce20bd1ecdf5cfa69700.html",
+      "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" },
+        { "key": "X-Robots-Tag", "value": "all, index, follow" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    }
+  ]
+}
