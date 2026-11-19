@@ -173,26 +173,27 @@ export default function LinksPage() {
         onResetData={handleResetData}
       />
 
-      {/* ── Main Container (Mobile First, max-w-xl) ── */}
-      <main className="max-w-xl mx-auto px-4 pb-16">
-        {!isAuthReady ? (
-          <div className="py-24 flex flex-col items-center justify-center gap-3">
-            <Loader2 className="w-6 h-6 border-2 border-[#111111] border-t-transparent rounded-full animate-spin text-[#111111]" />
-            <p className="text-xs text-[#707072] font-medium">인증 상태 확인 중...</p>
-          </div>
-        ) : !authUser ? (
-          /* ── 미로그인 상태 화면 : 서비스 설명 및 Google 로그인 유도 ── */
+      {/* ── Main Container ── */}
+      {!isAuthReady ? (
+        <main className="max-w-xl mx-auto px-4 py-24 flex flex-col items-center justify-center gap-3">
+          <Loader2 className="w-6 h-6 border-2 border-[#111111] border-t-transparent rounded-full animate-spin text-[#111111]" />
+          <p className="text-xs text-[#707072] font-medium">인증 상태 확인 중...</p>
+        </main>
+      ) : !authUser ? (
+        /* ── 미로그인 상태 화면 : 30분 완성 풀 랜딩 페이지 (반응형) ── */
+        <main className="w-full">
           <UnauthenticatedView />
-        ) : (
-          /* ── 로그인 상태 화면 : users/{user.uid}/links 개인화 데이터 화면 ── */
-          <>
-            {/* 사용자 프로필 배너 */}
-            <ProfileBanner profile={profile} />
+        </main>
+      ) : (
+        /* ── 로그인 상태 화면 : users/{user.uid}/links 개인화 데이터 화면 (Mobile First, max-w-xl) ── */
+        <main className="max-w-xl mx-auto px-4 pb-16">
+          {/* 사용자 프로필 배너 */}
+          <ProfileBanner profile={profile} />
 
-            <Separator className="my-2 bg-[#e5e5e5]" />
+          <Separator className="my-2 bg-[#e5e5e5]" />
 
-            {/* 통계 요약 (shadcn Card) */}
-            <StatsSummary links={links} className="my-4" />
+          {/* 통계 요약 (shadcn Card) */}
+          <StatsSummary links={links} className="my-4" />
 
             {/* View Mode: 1) Standard Linktree List View */}
             {viewMode === 'list' && (
@@ -216,21 +217,20 @@ export default function LinksPage() {
             {viewMode === 'editorial' && (
               <EditorialGrid items={dummyEditorialLinks} />
             )}
-          </>
-        )}
 
-        {/* ── Footer ── */}
-        <footer className="mt-12 text-center text-xs text-[#707072]">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="font-semibold text-[#111111]">마이링크 (MyLink)</span>
-            <span>·</span>
-            <span>Firestore 개인화 클라우드</span>
-          </div>
-          <p className="text-[11px] text-[#9e9ea0]">
-            Next.js 16 · Firebase Auth & Firestore · Tailwind CSS v4
-          </p>
-        </footer>
-      </main>
-    </div>
-  );
-}
+            {/* ── Footer for Logged-in ── */}
+            <footer className="mt-12 text-center text-xs text-[#707072]">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="font-semibold text-[#111111]">마이링크 (MyLink)</span>
+                <span>·</span>
+                <span>Firestore 개인화 클라우드</span>
+              </div>
+              <p className="text-[11px] text-[#9e9ea0]">
+                Next.js 16 · Firebase Auth & Firestore · Tailwind CSS v4
+              </p>
+            </footer>
+          </main>
+        )}
+      </div>
+    );
+  }

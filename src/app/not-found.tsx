@@ -1,7 +1,14 @@
+import type { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, UserX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+export const metadata: Metadata = {
+  title: '페이지를 찾을 수 없습니다 (404)',
+  description: '요청하신 페이지나 사용자 프로필이 존재하지 않습니다.',
+  robots: { index: false, follow: false },
+};
 
 export default function NotFound() {
   return (
